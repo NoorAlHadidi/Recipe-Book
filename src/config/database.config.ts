@@ -1,5 +1,5 @@
 import { env } from "@/utils";
 
 export const databaseConfiguration = {
-    connectionString: env.databaseUrl,
+    connectionString: env.get('DB_URL'),
 };

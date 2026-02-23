@@ -10,7 +10,7 @@ async function main() {
     // initialize database connection
     await databaseClient.connect();
 
-    const { port } = env;
+    const port = env.get('PORT');
 
     server.listen(port, () => {
         logger.debug(`Server is running on port ${port}.⬆️ `);

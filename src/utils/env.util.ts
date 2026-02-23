@@ -12,7 +12,7 @@ class EnvironmentVariables {
         this._initialize();
         this._validateVariables();
 
-        console.log(`Environment variables loaded. ✅`);
+        console.log(`Environment variables loaded.✅`);
     }
 
     private _initialize() {
@@ -44,41 +44,12 @@ class EnvironmentVariables {
             exit(1);
         }
     }
-
-    get port(): number {
-        return +ENV["PORT"]!;
-    }
-
-    get databaseUrl(): string {
-        return ENV["DB_URL"]!;
-    }
-    
-    get logLevel(): Level {
-        return ENV["LOG_LEVEL"]! as Level;
-    }
-
-    get logFilesDirectoryName(): string {
-        return ENV["LOG_FILES_DIRECTORY_NAME"]!;
-    }
-
-    get logFileName() {
-        return ENV["LOG_FILE_NAME"]!;
-    }
-
-    get databaseHost() {
-        return ENV["DB_HOST"]!;
-    }
-    
-    get databasePort(): number {
-        return +ENV["DB_PORT"]!;
-    }
-    
-    get databaseUsername() {
-        return ENV["DB_USER"];
-    }
-
-    get databasePassword() {
-        return ENV["DB_PASSWORD"];
+        
+    public get<T = string>(key: string): T {
+        if (!this._environmentVariables.includes(key)) {                
+            throw new Error(`Environment variable ${key} does not exist.`);
+        }
+        return ENV[key] as unknown as T;
     }
 }
 
