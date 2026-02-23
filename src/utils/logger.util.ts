@@ -10,7 +10,7 @@ class Logger {
     
     constructor() {
         this._logger = pino(loggerConfiguration);
-        this._logger.debug('Pino logger initialized. 🪵')
+        this._logger.debug('Pino logger initialized.🪵')
     }
 }
 
