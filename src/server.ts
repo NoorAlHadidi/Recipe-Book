@@ -14,6 +14,7 @@ async function main() {
 
     server.listen(port, () => {
         logger.debug(`Server is running on port ${port}.⬆️ `);
+        logger.debug(`Swagger docs available at http://localhost:${port}/api-docs`);
     });
 }
 

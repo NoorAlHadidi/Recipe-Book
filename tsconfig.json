@@ -14,7 +14,8 @@
       ],
       "@lib/*": [
         "lib/*" // path alias for lib (use @lib/ rather than relative paths)
-      ]
+      ],
+      "@/routes": ["src/routes/index.ts"],
     },           
     "resolveJsonModule": true,                       
     "sourceMap": true, 

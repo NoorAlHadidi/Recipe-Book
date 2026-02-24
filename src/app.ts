@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import { loggerMiddleware } from '@/middlewares';
 import { setupSwagger } from '@/config';
+import { router } from '@/routes';
 
 const app: Application = express();
 
@@ -11,6 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(loggerMiddleware);
 
 // TODO: register routes here
+app.use('/check', router);
 
 setupSwagger(app);
 
