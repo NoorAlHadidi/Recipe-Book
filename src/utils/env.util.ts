@@ -1,103 +1,35 @@
 import dotenv from "dotenv";
-import { env as ENV, exit } from "process";
-import { Level } from "pino";
+import { envSchema } from "@/utils/env.schema";
 
 class EnvironmentVariables {
-    private _environmentVariables: string[];
 
-    private _optionalVariables: string[];
+    private _env;
 
     constructor() {
         dotenv.config();
 
-        this._environmentVariables = [];
-        this._optionalVariables = [];
-        this._initialize();
+        const result = this._validateVariables();
 
-        this._validateVariables();
+        this._env = result.data;
 
         console.log(`Environment variables loaded.✅`);
     }
 
-    private _initialize() {
-        this._environmentVariables = [
-            'PORT',
-            'DB_URL',
-            'LOG_LEVEL',
-            'LOG_FILES_DIRECTORY_NAME',
-            'LOG_FILE_NAME',
-            'DB_HOST',
-            'DB_PORT',
-            'DB_USER',
-            'DB_PASSWORD',
-            'DB_NAME'
-        ];
-
-        this._optionalVariables = [
-            'DB_HOST',
-            'DB_PORT',
-            'DB_USER',
-            'DB_PASSWORD',
-            'DB_NAME'
-        ];
-    }
-
-    private _validateValue(key: string, value: string): string | null {
-        if (key.includes('PORT') && isNaN(Number(value))) {
-            return `${key} must be a valid number.`;
-        }   
-        if (key.includes('URL')) {
-            try {
-                new URL(value); // Throws error if invalid
-            }   
-            catch {
-                return `${key} must be a valid URL.`;
-            }
-        }
-        if (key === 'LOG_LEVEL') {
-            const allowedLevels: Level[] = ['fatal', 'error', 'warn', 'info', 'debug', 'trace'];
-            if (!allowedLevels.includes(value as Level)) {
-                return `${key} must be one of: ${allowedLevels.join(', ')}`;
-            }
-        }
-        return null;
-    }
-
     private _validateVariables() {
-        const error_messages: string[] = [];
+        const result = envSchema.safeParse(process.env);
 
-        for (const key of this._environmentVariables) {
-
-            const value = ENV[key]; 
-
-            if (this._optionalVariables.includes(key) && !value) {
-                continue;
-            }
-
-            if (!value) {
-                error_messages.push(`❌ Environment variable ${key} is not set.`);
-                continue; 
-            }
-
-            const validationError = this._validateValue(key, value);
-
-            if (validationError) {
-                error_messages.push(`❌ ${validationError}`);
-            }
+        if (!result.success) {
+            console.error("❌Environment variables validation failed:");
+            console.error(result.error.format());
+            process.exit(1);
         }
 
-        if (error_messages.length > 0) {
-            console.error(error_messages.join('\n'));
-            exit(1); 
-        }
+        return result;
     }
 
-    public get<T = string>(key: string): T {
-        if (!this._environmentVariables.includes(key)) {
-            throw new Error(`Environment variable ${key} does not exist in _initialize().`);
-        }
-
-        return ENV[key] as unknown as T;
+    // ensures key is one of the defined environment variables and returns its value with correct type
+    public get<T extends keyof typeof this._env>(key: T) {
+        return this._env[key];
     }
 }
 
