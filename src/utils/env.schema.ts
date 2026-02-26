@@ -11,4 +11,6 @@ export const envSchema = z.object({
     DB_USER: z.string("DB_USER must be a string.").optional(),
     DB_PASSWORD: z.string("DB_PASSWORD must be a string.").optional(),
     DB_NAME: z.string("DB_NAME must be a string.").optional(),
+    ACCESS_TOKEN_SECRET: z.string("ACCESS_TOKEN_SECRET must be a string.").length(128, "ACCESS_TOKEN_SECRET must be exactly 128 characters long.").regex(/^[a-f0-9]+$/, "ACCESS_TOKEN_SECRET must be a hexadecimal string."),
+    REFRESH_TOKEN_SECRET: z.string("REFRESH_TOKEN_SECRET must be a string.").length(128, "REFRESH_TOKEN_SECRET must be exactly 128 characters long.").regex(/^[a-f0-9]+$/, "REFRESH_TOKEN_SECRET must be a hexadecimal string."),
 });
