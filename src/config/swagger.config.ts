@@ -18,7 +18,7 @@ const swaggerDefinition = {
 
 const swaggerOptions: swaggerJsdoc.Options = {
   definition: swaggerDefinition,
-  apis: ["src/routes/**/*.ts"], // where swagger looks for route comments
+  apis: ["src/auth/**/*.ts"], // where swagger looks for route comments
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
