@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export default defineConfig({
-    schema: "./src/database/schema/*.schema.ts",
+    schema: "./src/database/schemas/*.schema.ts",
     out: "./drizzle/migrations", // directory to store generated migration files
     dialect: "postgresql",
     dbCredentials: {

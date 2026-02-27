@@ -10,13 +10,14 @@ export const usersTable = pgTable("users", {
   password: varchar("password").notNull(),
   role: moodEnum("role").notNull().default('user'),
   isActive: boolean("active").notNull().default(true),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const refreshTokensTable = pgTable("refresh_tokens", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => usersTable.userId, { onDelete: "cascade" }),
-  token: varchar("token").notNull(),
+  tokenHash: varchar("token_hash").notNull(),
   expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  isRevoked: boolean("revoked").notNull().default(false), 
 });
 
