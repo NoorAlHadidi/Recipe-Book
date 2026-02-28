@@ -3,8 +3,8 @@ import { usersTable, refreshTokensTable } from "@/database";
 import { env } from '@/utils';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { SignUpDTO, LogInDTO } from "./auth.schema";
-import { eq } from "drizzle-orm";
+import { SignUpDTO, LogInDTO, RefreshTokenDTO } from "./auth.schema";
+import { eq, and, gt } from "drizzle-orm";
 
 class AuthService {
 
@@ -36,6 +36,26 @@ class AuthService {
         const hashedToken = await bcrypt.hash(refreshToken, 10);
         await databaseClient.db.insert(refreshTokensTable).values({ userId: user[0].userId, tokenHash: hashedToken, expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) });
         return { accessToken, refreshToken };
+    }
+
+    async logOut(refreshTokenDTO: RefreshTokenDTO) {
+        const { refreshToken } = refreshTokenDTO;
+        const hashedToken = await bcrypt.hash(refreshToken, 10);
+        const decoded: any = jwt.verify(refreshToken, env!.get('REFRESH_TOKEN_SECRET'));
+        await databaseClient.db.update(refreshTokensTable).set({ isRevoked: true }).where(eq(refreshTokensTable.userId, decoded.userId));   
+    }
+
+    async refreshTokens(refreshTokenDTO: RefreshTokenDTO) {
+        const { refreshToken } = refreshTokenDTO;
+        const decoded: any = jwt.verify(refreshToken, env!.get('REFRESH_TOKEN_SECRET'));
+        const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+        const storedTokens = await databaseClient.db.select().from(refreshTokensTable).where(and(eq(refreshTokensTable.userId, decoded.userId), eq(refreshTokensTable.isRevoked, false), gt(refreshTokensTable.expiresAt, new Date())));
+        const validToken = storedTokens.find(token => bcrypt.compare(hashedRefreshToken, token.tokenHash));
+        if (!validToken) {
+            throw new Error("Invalid refresh token.");
+        }
+        const newAccessToken = jwt.sign({ userId: decoded.userId, role: decoded.role }, env!.get('ACCESS_TOKEN_SECRET'), { expiresIn: '15m' });
+        return { accessToken: newAccessToken };
     }
 }
 

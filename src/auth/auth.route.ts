@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authController } from "./auth.controller";
+import { authenticateToken } from "@/middlewares";
 
 export const authRouter = Router();
 
@@ -73,5 +74,54 @@ authRouter.post("/sign-up", authController.signUp);
  *                      type: string
  */
 authRouter.post("/log-in", authController.logIn);
+
+/**
+ * @swagger
+ * /auth/log-out:
+ *   post:
+ *     summary: Endpoint for user log-out
+ *     security:
+ *          - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Log-out successful
+ */
+authRouter.post("/log-out", authenticateToken, authController.logOut);
+
+/**
+ * @swagger
+ * /auth/refresh-token:
+ *   post:
+ *     summary: Endpoint to refresh access token using a valid refresh token
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Tokens refreshed successfully, returns new access token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  accessToken:
+ *                      type: string
+ */
+authRouter.post("/refresh-token", authController.refreshTokens);
 
 export default authRouter;
