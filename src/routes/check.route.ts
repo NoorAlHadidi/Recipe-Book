@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { authenticateToken } from "@/middlewares";
 
 export const router = Router();
 
@@ -7,6 +8,8 @@ export const router = Router();
  * /check:
  *   post:
  *     summary: Dummy POST endpoint for testing
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       201:
  *         description: Created
@@ -22,7 +25,7 @@ export const router = Router();
  *                   type: string
  *                   example: Success
  */
-router.post("", (req, res) => {
+router.post("", authenticateToken, (req, res) => {
   res.status(201).json({ operation: "Created", status: "Success" });
 });
 

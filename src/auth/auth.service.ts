@@ -21,6 +21,7 @@ class AuthService {
     }
 
     async logIn(logInDTO: LogInDTO) {
+        // TODO: add active user check
         const { email, password } = logInDTO;
         const user = await databaseClient.db.select({userId: usersTable.userId, email: usersTable.email, password: usersTable.password, role: usersTable.role }).from(usersTable).where(eq(usersTable.email, email));
         if (user.length === 0) {
@@ -32,7 +33,8 @@ class AuthService {
         }
         const accessToken = jwt.sign({ userId: user[0].userId, role: user[0].role }, env!.get('ACCESS_TOKEN_SECRET'), { expiresIn: '15m' });
         const refreshToken = jwt.sign({ userId: user[0].userId, role: user[0].role }, env!.get('REFRESH_TOKEN_SECRET'), { expiresIn: '7d' });
-        await databaseClient.db.insert(refreshTokensTable).values({ userId: user[0].userId, tokenHash: refreshToken, expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) });
+        const hashedToken = await bcrypt.hash(refreshToken, 10);
+        await databaseClient.db.insert(refreshTokensTable).values({ userId: user[0].userId, tokenHash: hashedToken, expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) });
         return { accessToken, refreshToken };
     }
 }
