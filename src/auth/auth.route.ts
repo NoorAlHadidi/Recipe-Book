@@ -43,4 +43,35 @@ export const authRouter = Router();
  */
 authRouter.post("/sign-up", authController.signUp);
 
+/**
+ * @swagger
+ * /auth/log-in:
+ *   post:
+ *     summary: Endpoint for user log-in
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Log-in successful, returns access and refresh tokens
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  accessToken:
+ *                      type: string
+ *                  refreshToken:
+ *                      type: string
+ */
+authRouter.post("/log-in", authController.logIn);
+
 export default authRouter;
