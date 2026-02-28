@@ -6,7 +6,7 @@ export const authRouter = Router();
 
 /**
  * @swagger
- * /auth/sign-up:
+ * /auth/register:
  *   post:
  *     summary: Endpoint for user sign-up
  *     requestBody:
@@ -42,11 +42,11 @@ export const authRouter = Router();
  *                      type: string
  * 
  */
-authRouter.post("/sign-up", authController.signUp);
+authRouter.post("/register", authController.signUp);
 
 /**
  * @swagger
- * /auth/log-in:
+ * /auth/login:
  *   post:
  *     summary: Endpoint for user log-in
  *     requestBody:
@@ -73,11 +73,11 @@ authRouter.post("/sign-up", authController.signUp);
  *                  refreshToken:
  *                      type: string
  */
-authRouter.post("/log-in", authController.logIn);
+authRouter.post("/login", authController.logIn);
 
 /**
  * @swagger
- * /auth/log-out:
+ * /auth/logout:
  *   post:
  *     summary: Endpoint for user log-out
  *     security:
@@ -95,11 +95,11 @@ authRouter.post("/log-in", authController.logIn);
  *       200:
  *         description: Log-out successful
  */
-authRouter.post("/log-out", authenticateToken, authController.logOut);
+authRouter.post("/logout", authenticateToken, authController.logOut);
 
 /**
  * @swagger
- * /auth/refresh-token:
+ * /auth/refresh:
  *   post:
  *     summary: Endpoint to refresh access token using a valid refresh token
  *     requestBody:
@@ -122,6 +122,6 @@ authRouter.post("/log-out", authenticateToken, authController.logOut);
  *                  accessToken:
  *                      type: string
  */
-authRouter.post("/refresh-token", authController.refreshTokens);
+authRouter.post("/refresh", authController.refreshTokens);
 
 export default authRouter;
