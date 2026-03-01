@@ -1,7 +1,6 @@
 import { ZodError } from "zod";
 import { AppError } from "@/errors";
-import { logInSchema, signUpSchema, refreshTokenSchema } from "./auth.schema";
-import { authService } from "./auth.service";
+import { logInSchema, signUpSchema, refreshTokenSchema, authService } from "@/auth";
 
 class AuthController {
   async signUp(req: any, res: any) {

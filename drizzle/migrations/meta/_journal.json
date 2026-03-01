@@ -15,6 +15,13 @@
       "when": 1772123837202,
       "tag": "0001_narrow_mentor",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772371915540,
+      "tag": "0002_happy_electro",
+      "breakpoints": true
     }
   ]
 }

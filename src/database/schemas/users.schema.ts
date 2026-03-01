@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, pgEnum, timestamp, boolean, integer } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, pgEnum, timestamp, boolean, integer, uuid } from "drizzle-orm/pg-core";
 
 export const moodEnum = pgEnum('role', ['user', 'admin']);
 
@@ -16,7 +16,8 @@ export const usersTable = pgTable("users", {
 export const refreshTokensTable = pgTable("refresh_tokens", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => usersTable.userId, { onDelete: "cascade" }),
-  tokenHash: varchar("token_hash").notNull(),
+  jti: uuid("jti").unique().notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
   isRevoked: boolean("revoked").notNull().default(false), 
 });

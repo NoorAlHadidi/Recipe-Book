@@ -1,19 +1,20 @@
 import { databaseClient, usersTable, refreshTokensTable } from "@/database";
-import { SignUpDTO, LogInDTO, RefreshTokenDTO } from "./auth.schema";
+import { SignUpDTO, LogInDTO, RefreshTokenDTO } from "@/auth";
 import { env } from "@/utils";
 import { AppError } from "@/errors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { eq, and, gt } from "drizzle-orm";
+import { randomUUID } from "crypto";
+import { eq, and } from "drizzle-orm";
 
 class AuthService {
-
   async signUp(signUpDTO: SignUpDTO) {
     const { firstName, lastName, email, password } = signUpDTO;
     const existingUser = await databaseClient.db
       .select()
       .from(usersTable)
-      .where(eq(usersTable.email, email));
+      .where(eq(usersTable.email, email))
+      .execute();
     if (existingUser.length > 0) {
       throw new AppError("User with this email already exists.", 409);
     }
@@ -31,7 +32,8 @@ class AuthService {
         firstName: usersTable.firstName,
         lastName: usersTable.lastName,
         email: usersTable.email,
-      });
+      })
+      .execute();
     return newUser[0];
   }
 
@@ -46,7 +48,8 @@ class AuthService {
         isActive: usersTable.isActive,
       })
       .from(usersTable)
-      .where(eq(usersTable.email, email));
+      .where(eq(usersTable.email, email))
+      .execute();
     if (user.length === 0) {
       throw new AppError("Invalid credentials.", 401);
     }
@@ -62,17 +65,20 @@ class AuthService {
       env!.get("ACCESS_TOKEN_SECRET"),
       { expiresIn: "15m" },
     );
+    const jti = randomUUID();
     const refreshToken = jwt.sign(
-      { userId: user[0].userId, role: user[0].role },
+      { userId: user[0].userId, role: user[0].role, jti },
       env!.get("REFRESH_TOKEN_SECRET"),
       { expiresIn: "7d" },
     );
-    const hashedToken = await bcrypt.hash(refreshToken, 10);
-    await databaseClient.db.insert(refreshTokensTable).values({
-      userId: user[0].userId,
-      tokenHash: hashedToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    });
+    await databaseClient.db
+      .insert(refreshTokensTable)
+      .values({
+        userId: user[0].userId,
+        jti: jti,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      })
+      .execute();
     return { accessToken, refreshToken };
   }
 
@@ -83,30 +89,29 @@ class AuthService {
       env!.get("REFRESH_TOKEN_SECRET"),
     );
     const userTokens = await databaseClient.db
-      .select()
+      .select({
+        isRevoked: refreshTokensTable.isRevoked,
+        expiresAt: refreshTokensTable.expiresAt,
+      })
       .from(refreshTokensTable)
       .where(
         and(
+          eq(refreshTokensTable.jti, decoded.jti),
           eq(refreshTokensTable.userId, decoded.userId),
-          eq(refreshTokensTable.isRevoked, false),
-          gt(refreshTokensTable.expiresAt, new Date()),
         ),
-      );
-    let validToken = null;
-    for (const userToken of userTokens) {
-      const isCorrect = await bcrypt.compare(refreshToken, userToken.tokenHash);
-      if (isCorrect) {
-        validToken = userToken;
-        break;
-      }
-    }
-    if (!validToken) {
+      )
+      .execute();
+    if (userTokens.length === 0) {
       throw new AppError("Invalid refresh token.", 401);
+    }
+    if (userTokens[0].isRevoked || userTokens[0].expiresAt < new Date()) {
+      throw new AppError("Refresh token is revoked or expired.", 401);
     }
     await databaseClient.db
       .update(refreshTokensTable)
       .set({ isRevoked: true })
-      .where(eq(refreshTokensTable.id, validToken.id));
+      .where(eq(refreshTokensTable.jti, decoded.jti))
+      .execute();
   }
 
   async refreshTokens(refreshTokenDTO: RefreshTokenDTO) {
@@ -116,25 +121,23 @@ class AuthService {
       env!.get("REFRESH_TOKEN_SECRET"),
     );
     const userTokens = await databaseClient.db
-      .select()
+      .select({
+        isRevoked: refreshTokensTable.isRevoked,
+        expiresAt: refreshTokensTable.expiresAt,
+      })
       .from(refreshTokensTable)
       .where(
         and(
+          eq(refreshTokensTable.jti, decoded.jti),
           eq(refreshTokensTable.userId, decoded.userId),
-          eq(refreshTokensTable.isRevoked, false),
-          gt(refreshTokensTable.expiresAt, new Date()),
         ),
-      );
-    let validToken = null;
-    for (const userToken of userTokens) {
-      const isCorrect = await bcrypt.compare(refreshToken, userToken.tokenHash);
-      if (isCorrect) {
-        validToken = userToken;
-        break;
-      }
-    }
-    if (!validToken) {
+      )
+      .execute();
+    if (userTokens.length === 0) {
       throw new AppError("Invalid refresh token.", 401);
+    }
+    if (userTokens[0].isRevoked || userTokens[0].expiresAt < new Date()) {
+      throw new AppError("Refresh token is revoked or expired.", 401);
     }
     const newAccessToken = jwt.sign(
       { userId: decoded.userId, role: decoded.role },
@@ -144,18 +147,22 @@ class AuthService {
     await databaseClient.db
       .update(refreshTokensTable)
       .set({ isRevoked: true })
-      .where(eq(refreshTokensTable.id, validToken.id));
+      .where(eq(refreshTokensTable.jti, decoded.jti))
+      .execute();
+    const newJti = randomUUID();
     const newRefreshToken = jwt.sign(
-      { userId: decoded.userId, role: decoded.role },
+      { userId: decoded.userId, role: decoded.role, jti: newJti },
       env!.get("REFRESH_TOKEN_SECRET"),
       { expiresIn: "7d" },
     );
-    const hashedToken = await bcrypt.hash(newRefreshToken, 10);
-    await databaseClient.db.insert(refreshTokensTable).values({
-      userId: decoded.userId,
-      tokenHash: hashedToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    });
+    await databaseClient.db
+      .insert(refreshTokensTable)
+      .values({
+        userId: decoded.userId,
+        jti: newJti,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      })
+      .execute();
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   }
 }
