@@ -8,14 +8,15 @@ import { eq, and, gt } from "drizzle-orm";
 
 class AuthService {
 
-    async signUp(signUpDTO: SignUpDTO) {
+    async signUp(signUpDTO: SignUpDTO){
         const { firstName, lastName, email, password } = signUpDTO;
-        const existingUser = await databaseClient.db.select().from(usersTable).where(eq(usersTable.email, email));
+        const emailLowerCase = email.toLowerCase();
+        const existingUser = await databaseClient.db.select().from(usersTable).where(eq(usersTable.email, emailLowerCase));
         if (existingUser.length > 0) {
             throw new Error("User with this email already exists.");
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await databaseClient.db.insert(usersTable).values({ firstName: firstName, lastName: lastName, email, password: hashedPassword })
+        const newUser = await databaseClient.db.insert(usersTable).values({ firstName: firstName, lastName: lastName, email: emailLowerCase, password: hashedPassword })
         .returning({ userId: usersTable.userId, firstName: usersTable.firstName, lastName: usersTable.lastName, email: usersTable.email });
         return newUser[0];
     }
@@ -23,7 +24,8 @@ class AuthService {
     async logIn(logInDTO: LogInDTO) {
         // TODO: add active user check
         const { email, password } = logInDTO;
-        const user = await databaseClient.db.select({userId: usersTable.userId, email: usersTable.email, password: usersTable.password, role: usersTable.role }).from(usersTable).where(eq(usersTable.email, email));
+        const emailLowerCase = email.toLowerCase();
+        const user = await databaseClient.db.select({userId: usersTable.userId, email: usersTable.email, password: usersTable.password, role: usersTable.role }).from(usersTable).where(eq(usersTable.email, emailLowerCase));
         if (user.length === 0) {
             throw new Error("No user with this email found.");
         }
