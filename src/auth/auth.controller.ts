@@ -46,7 +46,7 @@ class AuthController {
     try {
       const refreshTokenDTO = refreshTokenSchema.parse(req.body);
       await authService.logOut(refreshTokenDTO);
-      res.status(200).json({ message: "Logged out successfully." });
+      res.status(204).json({ message: "Logged out successfully." });
     } catch (error: any) {
       if (error instanceof AppError) {
         res.status(error.statusCode).json({ error: error.message });
