@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { authController } from "./auth.controller";
-import { authenticateToken } from "@/middlewares";
 
 export const authRouter = Router();
 
@@ -16,7 +15,7 @@ export const authRouter = Router();
  *           schema:
  *             type: object
  *             properties:
- *               firstName: 
+ *               firstName:
  *                 type: string
  *               lastName:
  *                 type: string
@@ -40,7 +39,7 @@ export const authRouter = Router();
  *                      type: string
  *                  email:
  *                      type: string
- * 
+ *
  */
 authRouter.post("/register", authController.signUp);
 
