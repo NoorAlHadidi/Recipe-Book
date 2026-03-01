@@ -95,7 +95,7 @@ authRouter.post("/login", authController.logIn);
  *       200:
  *         description: Log-out successful
  */
-authRouter.post("/logout", authenticateToken, authController.logOut);
+authRouter.post("/logout", authController.logOut);
 
 /**
  * @swagger
