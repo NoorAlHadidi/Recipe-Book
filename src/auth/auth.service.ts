@@ -1,12 +1,13 @@
-import { databaseClient } from "@/database";
-import { usersTable, refreshTokensTable } from "@/database";
+import { databaseClient, usersTable, refreshTokensTable } from "@/database";
+import { SignUpDTO, LogInDTO, RefreshTokenDTO } from "./auth.schema";
 import { env } from "@/utils";
+import { AppError } from "@/errors";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { SignUpDTO, LogInDTO, RefreshTokenDTO } from "./auth.schema";
-import { eq, and, gt, is } from "drizzle-orm";
+import { eq, and, gt } from "drizzle-orm";
 
 class AuthService {
+
   async signUp(signUpDTO: SignUpDTO) {
     const { firstName, lastName, email, password } = signUpDTO;
     const existingUser = await databaseClient.db
@@ -14,7 +15,7 @@ class AuthService {
       .from(usersTable)
       .where(eq(usersTable.email, email));
     if (existingUser.length > 0) {
-      throw new Error("User with this email already exists.");
+      throw new AppError("User with this email already exists.", 409);
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await databaseClient.db
@@ -47,14 +48,14 @@ class AuthService {
       .from(usersTable)
       .where(eq(usersTable.email, email));
     if (user.length === 0) {
-      throw new Error("No user with this email found.");
+      throw new AppError("Invalid credentials.", 401);
     }
     if (!user[0].isActive) {
-      throw new Error("User is not active.");
+      throw new AppError("User is not active.", 403);
     }
     const isPasswordValid = await bcrypt.compare(password, user[0].password);
     if (!isPasswordValid) {
-      throw new Error("Incorrect password.");
+      throw new AppError("Invalid credentials.", 401);
     }
     const accessToken = jwt.sign(
       { userId: user[0].userId, role: user[0].role },
@@ -90,8 +91,7 @@ class AuthService {
           eq(refreshTokensTable.isRevoked, false),
           gt(refreshTokensTable.expiresAt, new Date()),
         ),
-      )
-      .execute();
+      );
     let validToken = null;
     for (const userToken of userTokens) {
       const isCorrect = await bcrypt.compare(refreshToken, userToken.tokenHash);
@@ -101,7 +101,7 @@ class AuthService {
       }
     }
     if (!validToken) {
-      throw new Error("Invalid refresh token.");
+      throw new AppError("Invalid refresh token.", 401);
     }
     await databaseClient.db
       .update(refreshTokensTable)
@@ -124,8 +124,7 @@ class AuthService {
           eq(refreshTokensTable.isRevoked, false),
           gt(refreshTokensTable.expiresAt, new Date()),
         ),
-      )
-      .execute();
+      );
     let validToken = null;
     for (const userToken of userTokens) {
       const isCorrect = await bcrypt.compare(refreshToken, userToken.tokenHash);
@@ -135,7 +134,7 @@ class AuthService {
       }
     }
     if (!validToken) {
-      throw new Error("Invalid refresh token.");
+      throw new AppError("Invalid refresh token.", 401);
     }
     const newAccessToken = jwt.sign(
       { userId: decoded.userId, role: decoded.role },
