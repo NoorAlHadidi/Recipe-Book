@@ -61,13 +61,13 @@ class AuthService {
       throw new AppError("Invalid credentials.", 401);
     }
     const accessToken = jwt.sign(
-      { userId: user[0].userId, role: user[0].role },
+      { sub: user[0].userId, role: user[0].role },
       env!.get("ACCESS_TOKEN_SECRET"),
       { expiresIn: "15m" },
     );
     const jti = randomUUID();
     const refreshToken = jwt.sign(
-      { userId: user[0].userId, role: user[0].role, jti },
+      { sub: user[0].userId, role: user[0].role, jti },
       env!.get("REFRESH_TOKEN_SECRET"),
       { expiresIn: "7d" },
     );
@@ -84,10 +84,12 @@ class AuthService {
 
   async logOut(refreshTokenDTO: RefreshTokenDTO) {
     const { refreshToken } = refreshTokenDTO;
-    const decoded: any = jwt.verify(
-      refreshToken,
-      env!.get("REFRESH_TOKEN_SECRET"),
-    );
+    let decodedToken: any;
+    try {
+        decodedToken = jwt.verify(refreshToken, env!.get("REFRESH_TOKEN_SECRET"));
+    } catch (error) {
+        throw new AppError("Refresh token could not be verified.", 401)
+    }
     const userTokens = await databaseClient.db
       .select({
         isRevoked: refreshTokensTable.isRevoked,
@@ -96,8 +98,8 @@ class AuthService {
       .from(refreshTokensTable)
       .where(
         and(
-          eq(refreshTokensTable.jti, decoded.jti),
-          eq(refreshTokensTable.userId, decoded.userId),
+          eq(refreshTokensTable.jti, decodedToken.jti),
+          eq(refreshTokensTable.userId, decodedToken.sub),
         ),
       )
       .execute();
@@ -110,16 +112,18 @@ class AuthService {
     await databaseClient.db
       .update(refreshTokensTable)
       .set({ isRevoked: true })
-      .where(eq(refreshTokensTable.jti, decoded.jti))
+      .where(eq(refreshTokensTable.jti, decodedToken.jti))
       .execute();
   }
 
   async refreshTokens(refreshTokenDTO: RefreshTokenDTO) {
     const { refreshToken } = refreshTokenDTO;
-    const decoded: any = jwt.verify(
-      refreshToken,
-      env!.get("REFRESH_TOKEN_SECRET"),
-    );
+    let decodedToken: any;
+    try {
+        decodedToken = jwt.verify(refreshToken, env!.get("REFRESH_TOKEN_SECRET"));
+    } catch (error) {
+        throw new AppError("Refresh token could not be verified.", 401)
+    }
     const userTokens = await databaseClient.db
       .select({
         isRevoked: refreshTokensTable.isRevoked,
@@ -128,8 +132,8 @@ class AuthService {
       .from(refreshTokensTable)
       .where(
         and(
-          eq(refreshTokensTable.jti, decoded.jti),
-          eq(refreshTokensTable.userId, decoded.userId),
+          eq(refreshTokensTable.jti, decodedToken.jti),
+          eq(refreshTokensTable.userId, decodedToken.sub),
         ),
       )
       .execute();
@@ -140,25 +144,25 @@ class AuthService {
       throw new AppError("Refresh token is revoked or expired.", 401);
     }
     const newAccessToken = jwt.sign(
-      { userId: decoded.userId, role: decoded.role },
+      { sub: decodedToken.sub, role: decodedToken.role },
       env!.get("ACCESS_TOKEN_SECRET"),
       { expiresIn: "15m" },
     );
     await databaseClient.db
       .update(refreshTokensTable)
       .set({ isRevoked: true })
-      .where(eq(refreshTokensTable.jti, decoded.jti))
+      .where(eq(refreshTokensTable.jti, decodedToken.jti))
       .execute();
     const newJti = randomUUID();
     const newRefreshToken = jwt.sign(
-      { userId: decoded.userId, role: decoded.role, jti: newJti },
+      { sub: decodedToken.sub, role: decodedToken.role, jti: newJti },
       env!.get("REFRESH_TOKEN_SECRET"),
       { expiresIn: "7d" },
     );
     await databaseClient.db
       .insert(refreshTokensTable)
       .values({
-        userId: decoded.userId,
+        userId: decodedToken.sub,
         jti: newJti,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       })
