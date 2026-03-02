@@ -1,9 +1,10 @@
 import { ZodError } from "zod";
 import { AppError } from "@/errors";
+import { Request, Response } from "express";
 import { logInSchema, signUpSchema, refreshTokenSchema, authService } from "@/auth";
 
 class AuthController {
-  async signUp(req: any, res: any) {
+  async signUp(req: Request, res: Response) {
     try {
       const signUpDto = signUpSchema.parse(req.body);
       const newUser = await authService.signUp(signUpDto);
@@ -22,7 +23,7 @@ class AuthController {
     }
   }
 
-  async logIn(req: any, res: any) {
+  async logIn(req: Request, res: Response) {
     try {
       const logInDto = logInSchema.parse(req.body);
       const tokens = await authService.logIn(logInDto);
@@ -41,7 +42,7 @@ class AuthController {
     }
   }
 
-  async logOut(req: any, res: any) {
+  async logOut(req: Request, res: Response) {
     try {
       const refreshTokenDTO = refreshTokenSchema.parse(req.body);
       await authService.logOut(refreshTokenDTO);
@@ -60,7 +61,7 @@ class AuthController {
     }
   }
 
-  async refreshTokens(req: any, res: any) {
+  async refreshTokens(req: Request, res: Response) {
     try {
       const refreshTokenDTO = refreshTokenSchema.parse(req.body);
       const newTokens = await authService.refreshTokens(refreshTokenDTO);

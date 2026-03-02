@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Middleware for logging
-// app.use(loggerMiddleware);
+app.use(loggerMiddleware);
 
 // TODO: register routes here
 app.use('/check', router);
