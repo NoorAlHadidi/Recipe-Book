@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const envSchema = z.object({
     PORT: z.coerce.number("PORT must be a number.").int("PORT must be an integer.").min(1).max(65535),
+    NODE_ENV: z.enum(['development', 'production', 'test'], "NODE_ENV must be a valid environment."),
     DB_URL: z.string().url("DB_URL must be a valid URL."),
     LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'], "LOG_LEVEL must be a valid Pino level."),
     LOG_FILES_DIRECTORY_NAME: z.string("LOG_FILES_DIRECTORY_NAME must be a string."),

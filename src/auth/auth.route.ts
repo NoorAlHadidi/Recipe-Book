@@ -46,7 +46,10 @@ export const authRouter = Router();
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  *                 details:
  *                   type: object
@@ -57,7 +60,10 @@ export const authRouter = Router();
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  *       500:
  *         description: Internal server error
@@ -66,7 +72,10 @@ export const authRouter = Router();
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  */
 authRouter.post("/register", authController.signUp);
@@ -106,7 +115,10 @@ authRouter.post("/register", authController.signUp);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  *                 details:
  *                   type: object
@@ -117,7 +129,10 @@ authRouter.post("/register", authController.signUp);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  *       403:
  *         description: User is not active
@@ -126,7 +141,10 @@ authRouter.post("/register", authController.signUp);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  *       500:
  *         description: Internal server error
@@ -135,7 +153,10 @@ authRouter.post("/register", authController.signUp);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  */
 authRouter.post("/login", authController.logIn);
@@ -164,7 +185,10 @@ authRouter.post("/login", authController.logIn);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  *                 details:
  *                   type: object
@@ -175,7 +199,10 @@ authRouter.post("/login", authController.logIn);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  *       500:
  *         description: Internal server error
@@ -184,7 +211,10 @@ authRouter.post("/login", authController.logIn);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  */
 authRouter.post("/logout", authController.logOut);
@@ -222,7 +252,10 @@ authRouter.post("/logout", authController.logOut);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  *                 details:
  *                   type: object
@@ -233,7 +266,10 @@ authRouter.post("/logout", authController.logOut);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  *       500:
  *         description: Internal server error
@@ -242,7 +278,10 @@ authRouter.post("/logout", authController.logOut);
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
  *                   type: string
  */
 authRouter.post("/refresh", authController.refreshTokens);
