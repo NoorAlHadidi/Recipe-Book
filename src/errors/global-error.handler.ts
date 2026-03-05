@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import { env } from "@/utils";
 import { AppError } from "@/errors";
 import { ZodError } from "zod";
@@ -40,3 +40,11 @@ export function globalErrorHandler(
     stack: env.get("NODE_ENV") === "development" ? err.stack : undefined,
   });
 }
+
+export const asyncErrorHandler =
+  (
+    controllerFunction: (req: Request, res: Response, next: NextFunction) => Promise<any>,
+  ): RequestHandler =>
+  (req, res, next) => {
+    Promise.resolve(controllerFunction(req, res, next)).catch(next);
+  };
