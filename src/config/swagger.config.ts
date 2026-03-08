@@ -9,6 +9,15 @@ const swaggerDefinition = {
     version: "1.0.0",
     description: "API documentation for the Recipe Book project",
   },
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+      },
+    },
+  },
   servers: [
     {
       url: "http://localhost:3000",
@@ -18,7 +27,7 @@ const swaggerDefinition = {
 
 const swaggerOptions: swaggerJsdoc.Options = {
   definition: swaggerDefinition,
-  apis: ["src/routes/**/*.ts"], // where swagger looks for route comments
+  apis: ["src/auth/**/*.ts", "src/routes/**/*.ts"], // where swagger looks for route comments
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
