@@ -16,4 +16,8 @@ export const addAdminSchema = z.object({
     .max(128, "Password must be at most 128 characters long."),
 });
 
+export const grantAdminSchema = z.object({
+  userId: z.number().int().positive("Invalid user ID."),
+});
+
 export type AddAdminDTO = z.infer<typeof addAdminSchema>;

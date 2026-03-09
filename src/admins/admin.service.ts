@@ -34,6 +34,25 @@ class AdminService {
       .execute();
     return newUser[0];
   }
+
+  async grantAdminPrivileges(userId: number) {
+    const exisitingUser = await databaseClient.db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.userId, userId))
+      .execute();
+    if (exisitingUser.length === 0) {
+      throw new AppError("No user with that ID exists.", 404);
+    }
+    if (exisitingUser[0].role === "admin") {
+      throw new AppError("User already has admin privileges.", 409);
+    }
+    await databaseClient.db
+      .update(usersTable)
+      .set({ role: "admin" })
+      .where(eq(usersTable.userId, userId))
+      .execute();
+  }
 }
 
 export const adminService = new AdminService();
