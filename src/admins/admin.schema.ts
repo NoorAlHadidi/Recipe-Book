@@ -17,7 +17,7 @@ export const addAdminSchema = z.object({
 });
 
 export const grantAdminSchema = z.object({
-  userId: z.number().int().positive("Invalid user ID."),
+  userId: z.string().regex(/^\d+$/, "User ID must be a positive integer.").transform(Number),
 });
 
 export type AddAdminDTO = z.infer<typeof addAdminSchema>;
