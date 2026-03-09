@@ -4,6 +4,7 @@ import { globalErrorHandler } from '@/errors';
 import { setupSwagger } from '@/config';
 import { router } from '@/routes';
 import { authRouter } from '@/auth';
+import { adminRouter } from '@/admins';
 
 const app: Application = express();
 
@@ -16,6 +17,7 @@ app.use(loggerMiddleware);
 // TODO: register routes here
 app.use('/check', router);
 app.use('/auth', authRouter); 
+app.use('/admin', adminRouter); 
 
 app.use(globalErrorHandler);
 
