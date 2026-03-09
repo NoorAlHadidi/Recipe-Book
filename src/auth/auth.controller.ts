@@ -1,9 +1,10 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { asyncErrorHandler } from "@/errors";
 import {
   logInSchema,
   signUpSchema,
   refreshTokenSchema,
+  resetPasswordSchema,
   authService,
 } from "@/auth";
 
@@ -30,6 +31,12 @@ class AuthController {
     const refreshTokenDTO = refreshTokenSchema.parse(req.body);
     const newTokens = await authService.refreshTokens(refreshTokenDTO);
     res.status(200).json(newTokens);
+  });
+
+  resetPassword = asyncErrorHandler(async (req: Request, res: Response) => {
+    const resetPasswordDTO = resetPasswordSchema.parse(req.body);
+    const result = await authService.resetPassword(resetPasswordDTO);
+    res.status(200).json({ message: "Password reset successfully." });
   });
 }
 
