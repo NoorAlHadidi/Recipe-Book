@@ -10,6 +10,7 @@ export const usersTable = pgTable("users", {
   password: varchar("password").notNull(),
   role: roleEnum("role").notNull().default('user'),
   isActive: boolean("active").notNull().default(true),
+  passwordReset: boolean("password_reset").notNull().default(false),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 

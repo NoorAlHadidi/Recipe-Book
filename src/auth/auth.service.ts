@@ -1,5 +1,5 @@
 import { databaseClient, usersTable, refreshTokensTable } from "@/database";
-import { SignUpDTO, LogInDTO, RefreshTokenDTO } from "@/auth";
+import { SignUpDTO, LogInDTO, RefreshTokenDTO, ResetPasswordDTO } from "@/auth";
 import { env } from "@/utils";
 import { AppError } from "@/errors";
 import bcrypt from "bcrypt";
@@ -46,6 +46,7 @@ class AuthService {
         password: usersTable.password,
         role: usersTable.role,
         isActive: usersTable.isActive,
+        passwordReset: usersTable.passwordReset,
       })
       .from(usersTable)
       .where(eq(usersTable.email, email))
@@ -59,6 +60,9 @@ class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user[0].password);
     if (!isPasswordValid) {
       throw new AppError("Invalid credentials.", 401);
+    }
+    if (user[0].passwordReset) {
+      throw new AppError("Password reset required upon first login for super admins.", 403);
     }
     const accessToken = jwt.sign(
       { sub: user[0].userId, role: user[0].role },
@@ -86,9 +90,9 @@ class AuthService {
     const { refreshToken } = refreshTokenDTO;
     let decodedToken: any;
     try {
-        decodedToken = jwt.verify(refreshToken, env!.get("REFRESH_TOKEN_SECRET"));
+      decodedToken = jwt.verify(refreshToken, env!.get("REFRESH_TOKEN_SECRET"));
     } catch (error) {
-        throw new AppError("Refresh token could not be verified.", 401)
+      throw new AppError("Refresh token could not be verified.", 401);
     }
     const userTokens = await databaseClient.db
       .select({
@@ -120,9 +124,9 @@ class AuthService {
     const { refreshToken } = refreshTokenDTO;
     let decodedToken: any;
     try {
-        decodedToken = jwt.verify(refreshToken, env!.get("REFRESH_TOKEN_SECRET"));
+      decodedToken = jwt.verify(refreshToken, env!.get("REFRESH_TOKEN_SECRET"));
     } catch (error) {
-        throw new AppError("Refresh token could not be verified.", 401)
+      throw new AppError("Refresh token could not be verified.", 401);
     }
     const userTokens = await databaseClient.db
       .select({
@@ -168,6 +172,29 @@ class AuthService {
       })
       .execute();
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+  }
+
+  async resetPassword(resetPasswordDTO: ResetPasswordDTO) {
+    const { userId, newPassword } = resetPasswordDTO;
+    const adminUser = await databaseClient.db
+      .select()
+      .from(usersTable)
+      .where(
+        and(
+          eq(usersTable.userId, userId),
+          eq(usersTable.role, "admin"),
+          eq(usersTable.passwordReset, true),
+        ),
+      );
+    if (adminUser.length === 0) {
+      throw new AppError("Only super admin is allowed to reset passwords.", 403);
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await databaseClient.db
+      .update(usersTable)
+      .set({ password: hashedPassword, passwordReset: false })
+      .where(eq(usersTable.userId, userId))
+      .execute();
   }
 }
 
