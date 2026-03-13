@@ -2,25 +2,28 @@ import z from "zod";
 
 export const addCategorySchema = z.object({
   name: z
-    .string()
+    .string("Category name must be a string.")
     .trim()
     .min(1, "Category name is required.")
     .max(100, "Category name must be at most 100 characters long.")
     .transform((category) => category.toLowerCase()),
-  description: z.string().trim().optional(),
+  description: z
+    .string("Category description must be a string.")
+    .trim()
+    .optional(),
 });
 
 export const categoryParamSchema = z.object({
   categoryId: z.coerce
-    .number()
-    .int()
+    .number("Category ID must be a number.")
+    .int("Category ID must be an integer.")
     .positive("Category ID must be a positive integer."),
 });
 
 export const editCategorySchema = z
   .object({
     name: z
-      .string()
+      .string("Category name must be a string.")
       .trim()
       .min(1, "Category name cannot be empty.")
       .max(100, "New category name must be at most 100 characters long.")
@@ -28,7 +31,7 @@ export const editCategorySchema = z
       .optional(),
 
     description: z
-      .string()
+      .string("Category description must be a string.")
       .trim()
       .min(1, "Description cannot be empty.")
       .optional(),
