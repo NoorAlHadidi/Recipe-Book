@@ -43,6 +43,13 @@
       "when": 1773244505754,
       "tag": "0005_thankful_vengeance",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1773428568784,
+      "tag": "0006_cynical_silvermane",
+      "breakpoints": true
     }
   ]
 }
