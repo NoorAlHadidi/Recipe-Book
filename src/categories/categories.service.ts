@@ -79,6 +79,20 @@ class CategoriesService {
 
     return updatedCategory[0];
   }
+
+  async deleteCategory(categoryId: number) {
+    const existingCategory = await databaseClient.db
+      .select()
+      .from(categoriesTable)
+      .where(eq(categoriesTable.categoryId, categoryId));
+    if (existingCategory.length === 0) {
+      throw new AppError("No category with this ID exists.", 404);
+    }
+    await databaseClient.db
+      .delete(categoriesTable)
+      .where(eq(categoriesTable.categoryId, categoryId))
+      .execute();
+  }
 }
 
 export const categoriesService = new CategoriesService();
