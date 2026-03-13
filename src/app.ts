@@ -5,6 +5,7 @@ import { setupSwagger } from '@/config';
 import { router } from '@/routes';
 import { authRouter } from '@/auth';
 import { adminRouter } from '@/admins';
+import { categoriesRouter } from '@/categories';
 
 const app: Application = express();
 
@@ -18,6 +19,7 @@ app.use(loggerMiddleware);
 app.use('/check', router);
 app.use('/auth', authRouter); 
 app.use('/admin', adminRouter); 
+app.use('/category', categoriesRouter)
 
 app.use(globalErrorHandler);
 
