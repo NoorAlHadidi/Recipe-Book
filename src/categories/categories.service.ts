@@ -33,7 +33,8 @@ class CategoriesService {
     const existingCategory = await databaseClient.db
       .select()
       .from(categoriesTable)
-      .where(eq(categoriesTable.categoryId, categoryId));
+      .where(eq(categoriesTable.categoryId, categoryId))
+      .execute();
     if (existingCategory.length === 0) {
       throw new AppError("No category with this ID exists.", 404);
     }
@@ -84,7 +85,8 @@ class CategoriesService {
     const existingCategory = await databaseClient.db
       .select()
       .from(categoriesTable)
-      .where(eq(categoriesTable.categoryId, categoryId));
+      .where(eq(categoriesTable.categoryId, categoryId))
+      .execute();
     if (existingCategory.length === 0) {
       throw new AppError("No category with this ID exists.", 404);
     }
@@ -102,11 +104,25 @@ class CategoriesService {
         description: categoriesTable.description,
       })
       .from(categoriesTable)
-      .where(eq(categoriesTable.categoryId, categoryId));
+      .where(eq(categoriesTable.categoryId, categoryId))
+      .execute();
     if (existingCategory.length === 0) {
       throw new AppError("No category with this ID exists.", 404);
     }
     return existingCategory[0];
+  }
+
+  async getCategories() {
+    const categories = await databaseClient.db
+      .select({
+        categoryId: categoriesTable.categoryId,
+        name: categoriesTable.name,
+        description: categoriesTable.description,
+      })
+      .from(categoriesTable)
+      .orderBy(categoriesTable.createdAt)
+      .execute();
+    return categories;
   }
 }
 

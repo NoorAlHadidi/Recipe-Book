@@ -35,6 +35,11 @@ class CategoriesController {
     const category = await categoriesService.getCategory(categoryId);
     res.status(200).json(category);
   });
+
+  getCategories = asyncErrorHandler(async (req: Request, res: Response) => {
+    const categories = await categoriesService.getCategories();
+    res.status(200).json(categories);
+  });
 }
 
 export const categoriesController = new CategoriesController();

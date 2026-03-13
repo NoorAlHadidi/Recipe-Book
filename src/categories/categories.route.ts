@@ -414,4 +414,73 @@ categoriesRouter.get(
   categoriesController.getCategory,
 );
 
+// allowing this endpoint to be accessible to all authenticated users to view a list of the system's categories
+
+/**
+ * @swagger
+ * /category:
+ *   get:
+ *     summary: Endpoint for retrieving all categories
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Categories retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               properties:
+ *                 categoryId:
+ *                   type: number
+ *                 name:
+ *                   type: string
+ *                 description:
+ *                   type: string
+ *                   nullable: true
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+categoriesRouter.get(
+  "/",
+  authenticateToken,
+  categoriesController.getCategories,
+);
+
 export default categoriesRouter;
