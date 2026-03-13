@@ -1,7 +1,7 @@
 import { databaseClient, categoriesTable } from "@/database";
 import { AppError } from "@/errors";
 import { AddCategoryDTO, EditCategoryDTO } from "@/categories";
-import { eq } from "drizzle-orm";
+import { eq, ne, and, or } from "drizzle-orm";
 
 class CategoriesService {
   async addCategory(addCategoryDTO: AddCategoryDTO) {
@@ -35,15 +35,36 @@ class CategoriesService {
       .from(categoriesTable)
       .where(eq(categoriesTable.categoryId, categoryId));
     if (existingCategory.length === 0) {
-        throw new AppError("No category with this ID exists.", 404);
+      throw new AppError("No category with this ID exists.", 404);
     }
     const { name, description } = editCategoryDTO;
     const updateValues: any = {};
+    const conflictConditions = [];
     if (name !== undefined) {
       updateValues.name = name;
+      conflictConditions.push(eq(categoriesTable.name, name));
     }
     if (description !== undefined) {
       updateValues.description = description;
+      conflictConditions.push(eq(categoriesTable.description, description));
+    }
+    if (conflictConditions.length > 0) {
+      const conflictCategory = await databaseClient.db
+        .select()
+        .from(categoriesTable)
+        .where(
+          and(
+            ne(categoriesTable.categoryId, categoryId),
+            or(...conflictConditions),
+          ),
+        )
+        .execute();
+      if (conflictCategory.length > 0) {
+        throw new AppError(
+          "Another category with this name or description already exists.",
+          409,
+        );
+      }
     }
     const updatedCategory = await databaseClient.db
       .update(categoriesTable)

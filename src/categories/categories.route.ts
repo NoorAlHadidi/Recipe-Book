@@ -198,6 +198,18 @@ categoriesRouter.post(
  *                   example: "error"
  *                 message:
  *                   type: string
+ *       409:
+ *         description: A category with the same name or description already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
  *       500:
  *         description: Internal server error
  *         content:
