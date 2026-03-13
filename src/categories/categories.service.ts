@@ -93,6 +93,21 @@ class CategoriesService {
       .where(eq(categoriesTable.categoryId, categoryId))
       .execute();
   }
+
+  async getCategory(categoryId: number) {
+    const existingCategory = await databaseClient.db
+      .select({
+        categoryId: categoriesTable.categoryId,
+        name: categoriesTable.name,
+        description: categoriesTable.description,
+      })
+      .from(categoriesTable)
+      .where(eq(categoriesTable.categoryId, categoryId));
+    if (existingCategory.length === 0) {
+      throw new AppError("No category with this ID exists.", 404);
+    }
+    return existingCategory[0];
+  }
 }
 
 export const categoriesService = new CategoriesService();

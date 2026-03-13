@@ -29,6 +29,12 @@ class CategoriesController {
     await categoriesService.deleteCategory(categoryId);
     res.status(204).send();
   });
+
+  getCategory = asyncErrorHandler(async (req: Request, res: Response) => {
+    const { categoryId } = categoryParamSchema.parse(req.params);
+    const category = await categoriesService.getCategory(categoryId);
+    res.status(200).json(category);
+  });
 }
 
 export const categoriesController = new CategoriesController();
