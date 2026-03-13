@@ -316,6 +316,8 @@ categoriesRouter.delete(
   categoriesController.removeCategory,
 );
 
+// allowing get endpoints to be accessible to all authenticated users to view a list of the system's categories
+
 /**
  * @swagger
  * /category/{categoryId}:
@@ -370,18 +372,6 @@ categoriesRouter.delete(
  *                   example: "error"
  *                 message:
  *                   type: string
- *       403:
- *         description: Authenticated user is not an admin
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
  *       404:
  *         description: Category not found
  *         content:
@@ -410,11 +400,8 @@ categoriesRouter.delete(
 categoriesRouter.get(
   "/:categoryId",
   authenticateToken,
-  checkAdmin,
   categoriesController.getCategory,
 );
-
-// allowing this endpoint to be accessible to all authenticated users to view a list of the system's categories
 
 /**
  * @swagger
