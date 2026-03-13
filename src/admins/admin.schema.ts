@@ -2,11 +2,11 @@ import z from "zod";
 
 export const addAdminSchema = z.object({
   firstName: z
-    .string()
+    .string("Admin first name must be a string.")
     .min(1, "First name is required.")
     .max(100, "First name must be at most 100 characters long."),
   lastName: z
-    .string()
+    .string("Admin last name must be a string.")
     .min(1, "Last name is required.")
     .max(100, "Last name must be at most 100 characters long."),
   email: z.string().toLowerCase().email("Invalid email address."),
@@ -17,7 +17,10 @@ export const addAdminSchema = z.object({
 });
 
 export const grantAdminSchema = z.object({
-  userId: z.string().regex(/^\d+$/, "User ID must be a positive integer.").transform(Number),
+  userId: z.coerce
+    .number("User ID must be a number.")
+    .int("User ID must be an integer.")
+    .positive("User ID must be a positive integer."),
 });
 
 export type AddAdminDTO = z.infer<typeof addAdminSchema>;
