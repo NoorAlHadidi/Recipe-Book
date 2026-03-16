@@ -1,0 +1,4 @@
+export * from './ingredients.schema'
+export * from './ingredients.service'
+export * from './ingredients.controller'
+export * from './ingredients.route'

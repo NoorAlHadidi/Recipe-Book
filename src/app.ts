@@ -6,6 +6,7 @@ import { router } from '@/routes';
 import { authRouter } from '@/auth';
 import { adminRouter } from '@/admins';
 import { categoriesRouter } from '@/categories';
+import { ingredientsRouter } from '@/ingredients';
 
 const app: Application = express();
 
@@ -20,6 +21,7 @@ app.use('/check', router);
 app.use('/auth', authRouter); 
 app.use('/admin', adminRouter); 
 app.use('/category', categoriesRouter)
+app.use('/ingredients', ingredientsRouter)
 
 app.use(globalErrorHandler);
 

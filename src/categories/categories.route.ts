@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { checkAdmin, authenticateToken } from "@/middlewares";
-import { categoriesController, categoriesService } from "@/categories";
+import { categoriesController } from "@/categories";
 
 export const categoriesRouter = Router();
 
