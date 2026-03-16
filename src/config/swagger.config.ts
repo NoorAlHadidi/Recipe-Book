@@ -27,12 +27,7 @@ const swaggerDefinition = {
 
 const swaggerOptions: swaggerJsdoc.Options = {
   definition: swaggerDefinition,
-  apis: [
-    "src/auth/**/*.ts",
-    "src/admins/**/*.ts",
-    "src/categories/**/*.ts",
-    "src/routes/**/*.ts",
-  ], // where swagger looks for route comments
+  apis: ["src/**/*.route.ts"], // where swagger looks for route comments
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
