@@ -26,6 +26,38 @@ class UnitsService {
       .execute();
     return newUnit[0];
   }
+
+  async deleteUnit(unitId: number) {
+    const existingUnit = await databaseClient.db
+      .select()
+      .from(unitsTable)
+      .where(eq(unitsTable.unitId, unitId))
+      .execute();
+    if (existingUnit.length === 0) {
+      throw new AppError("No unit with this ID exists.", 404);
+    }
+    await databaseClient.db
+      .delete(unitsTable)
+      .where(eq(unitsTable.unitId, unitId))
+      .execute();
+  }
+
+  async getUnit(unitId: number) {
+    const existingUnit = await databaseClient.db
+      .select()
+      .from(unitsTable)
+      .where(eq(unitsTable.unitId, unitId))
+      .execute();
+    if (existingUnit.length === 0) {
+      throw new AppError("No unit with this ID exists.", 404);
+    }
+    return existingUnit[0];
+  }
+
+  async getUnits() {
+    const units = await databaseClient.db.select().from(unitsTable).execute();
+    return units;
+  }
 }
 
 export const unitsService = new UnitsService();
