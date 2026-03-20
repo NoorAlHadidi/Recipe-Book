@@ -1,0 +1,4 @@
+ALTER TABLE "ingredients_units" ALTER COLUMN "ingredient_id" SET NOT NULL;--> statement-breakpoint
+ALTER TABLE "ingredients_units" ALTER COLUMN "unit_id" SET NOT NULL;--> statement-breakpoint
+ALTER TABLE "ingredients_units" ADD CONSTRAINT "ingredients_units_ingredient_id_ingredients_ingredient_id_fk" FOREIGN KEY ("ingredient_id") REFERENCES "public"."ingredients"("ingredient_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "ingredients_units" ADD CONSTRAINT "ingredients_units_unit_id_units_unit_id_fk" FOREIGN KEY ("unit_id") REFERENCES "public"."units"("unit_id") ON DELETE cascade ON UPDATE no action;

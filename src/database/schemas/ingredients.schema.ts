@@ -12,15 +12,15 @@ export const ingredientsTable = pgTable("ingredients", {
 });
 
 export const unitsTable = pgTable("units", {
-  unitId: serial("units_id").primaryKey(),
+  unitId: serial("unit_id").primaryKey(),
   name: varchar("name", { length: 100 }).notNull().unique(),
 });
 
 export const ingredientsUnitsTable = pgTable(
-  "ingredients_unts",
+  "ingredients_units",
   {
-    ingredientId: integer("ingredient_id"),
-    unitId: integer("unit_id"),
+    ingredientId: integer("ingredient_id").notNull().references(() => ingredientsTable.ingredientId, { onDelete: "cascade" }),
+    unitId: integer("unit_id").notNull().references(() => unitsTable.unitId, { onDelete: "cascade" }),
   },
   (table) => [
     primaryKey({

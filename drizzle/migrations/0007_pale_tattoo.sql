@@ -1,0 +1,1 @@
+ALTER TABLE "ingredients_unts" RENAME TO "ingredients_units";

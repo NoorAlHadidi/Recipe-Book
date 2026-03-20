@@ -50,6 +50,27 @@
       "when": 1773428568784,
       "tag": "0006_cynical_silvermane",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1774033766863,
+      "tag": "0007_pale_tattoo",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1774033781154,
+      "tag": "0008_noisy_sally_floyd",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1774033802615,
+      "tag": "0009_glossy_captain_america",
+      "breakpoints": true
     }
   ]
 }
