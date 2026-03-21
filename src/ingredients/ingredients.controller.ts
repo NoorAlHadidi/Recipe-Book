@@ -5,6 +5,7 @@ import {
   editIngredientSchema,
   addIngredientUnitSchema,
   ingredientParamSchema,
+  ingredientUnitParamSchema,
   ingredientsService,
 } from "@/ingredients";
 
@@ -53,12 +54,24 @@ class IngredientsController {
     res.status(201).json(newIngredientUnit);
   });
 
-  getIngredientUnits = asyncErrorHandler(async (req: Request, res: Response) => {
-    const { ingredientId } = ingredientParamSchema.parse(req.params);
-    const ingredientUnits = await ingredientsService.getIngredientUnits(ingredientId);
-    res.status(200).json(ingredientUnits);
-  });
+  getIngredientUnits = asyncErrorHandler(
+    async (req: Request, res: Response) => {
+      const { ingredientId } = ingredientParamSchema.parse(req.params);
+      const ingredientUnits =
+        await ingredientsService.getIngredientUnits(ingredientId);
+      res.status(200).json(ingredientUnits);
+    },
+  );
 
+  removeIngredientUnit = asyncErrorHandler(
+    async (req: Request, res: Response) => {
+      const { ingredientId, unitId } = ingredientUnitParamSchema.parse(
+        req.params,
+      );
+      await ingredientsService.deleteIngredientUnit(ingredientId, unitId);
+      res.status(204).send();
+    },
+  );
 }
 
 export const ingredientsController = new IngredientsController();

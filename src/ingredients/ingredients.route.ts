@@ -576,7 +576,7 @@ ingredientsRouter.post(
  * @swagger
  * /ingredients/{ingredientId}/units:
  *   get:
- *     summary: Endpoint for retrieving all ingredients
+ *     summary: Endpoint for retrieving all valid units for an ingredient
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -654,4 +654,94 @@ ingredientsRouter.get(
   ingredientsController.getIngredientUnits,
 );
 
+/**
+ * @swagger
+ * /ingredients/{ingredientId}/units/{unitId}:
+ *   delete:
+ *     summary: Endpoint for removing an ingredient's valid unit
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: ingredientId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: unitId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: Ingredient unit deleted successfully
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Authenticated user is not an admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Ingredient, unit, or relationship between both not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+ingredientsRouter.delete(
+  "/:ingredientId/units/:unitId",
+  authenticateToken,
+  checkAdmin,
+  ingredientsController.removeIngredientUnit,
+);
 export default ingredientsRouter;

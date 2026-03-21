@@ -186,6 +186,50 @@ class IngredientsService {
       .execute();
     return ingredientUnits;
   }
+
+  async deleteIngredientUnit(ingredientId: number, unitId: number) {
+    const existingIngredient = await databaseClient.db
+      .select()
+      .from(ingredientsTable)
+      .where(eq(ingredientsTable.ingredientId, ingredientId))
+      .execute();
+    if (existingIngredient.length === 0) {
+      throw new AppError("No ingredient with this ID exists.", 404);
+    }
+    const existingUnit = await databaseClient.db
+      .select()
+      .from(unitsTable)
+      .where(eq(unitsTable.unitId, unitId))
+      .execute();
+    if (existingUnit.length === 0) {
+      throw new AppError("No unit with this ID exists.", 404);
+    }
+    const existingIngredientUnit = await databaseClient.db
+      .select()
+      .from(ingredientsUnitsTable)
+      .where(
+        and(
+          eq(ingredientsUnitsTable.ingredientId, ingredientId),
+          eq(ingredientsUnitsTable.unitId, unitId),
+        ),
+      )
+      .execute();
+    if (existingIngredientUnit.length === 0) {
+      throw new AppError(
+        "This unit is not valid for the specified ingredient.",
+        404,
+      );
+    }
+    await databaseClient.db
+      .delete(ingredientsUnitsTable)
+      .where(
+        and(
+          eq(ingredientsUnitsTable.ingredientId, ingredientId),
+          eq(ingredientsUnitsTable.unitId, unitId),
+        ),
+      )
+      .execute();
+  }
 }
 
 export const ingredientsService = new IngredientsService();
