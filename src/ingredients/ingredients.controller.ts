@@ -52,6 +52,13 @@ class IngredientsController {
     );
     res.status(201).json(newIngredientUnit);
   });
+
+  getIngredientUnits = asyncErrorHandler(async (req: Request, res: Response) => {
+    const { ingredientId } = ingredientParamSchema.parse(req.params);
+    const ingredientUnits = await ingredientsService.getIngredientUnits(ingredientId);
+    res.status(200).json(ingredientUnits);
+  });
+
 }
 
 export const ingredientsController = new IngredientsController();

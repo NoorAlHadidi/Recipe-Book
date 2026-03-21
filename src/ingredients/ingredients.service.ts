@@ -162,6 +162,30 @@ class IngredientsService {
       .execute();
     return newIngredientUnit[0];
   }
+
+  async getIngredientUnits(ingredientId: number) {
+    const existingIngredient = await databaseClient.db
+      .select()
+      .from(ingredientsTable)
+      .where(eq(ingredientsTable.ingredientId, ingredientId))
+      .execute();
+    if (existingIngredient.length === 0) {
+      throw new AppError("No ingredient with this ID exists.", 404);
+    }
+    const ingredientUnits = await databaseClient.db
+      .select({
+        unitId: unitsTable.unitId,
+        unitName: unitsTable.name,
+      })
+      .from(ingredientsUnitsTable)
+      .innerJoin(
+        unitsTable,
+        eq(ingredientsUnitsTable.unitId, unitsTable.unitId),
+      )
+      .where(eq(ingredientsUnitsTable.ingredientId, ingredientId))
+      .execute();
+    return ingredientUnits;
+  }
 }
 
 export const ingredientsService = new IngredientsService();
