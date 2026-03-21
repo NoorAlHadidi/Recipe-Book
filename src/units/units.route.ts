@@ -1,14 +1,14 @@
 import { Router } from "express";
 import { checkAdmin, authenticateToken } from "@/middlewares";
-import { categoriesController } from "@/categories";
+import { unitsController } from "@/units";
 
-export const categoriesRouter = Router();
+export const unitsRouter = Router();
 
 /**
  * @swagger
- * /category:
+ * /units:
  *   post:
- *     summary: Endpoint for adding a new category
+ *     summary: Endpoint for adding a new unit
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -22,23 +22,18 @@ export const categoriesRouter = Router();
  *             properties:
  *               name:
  *                 type: string
- *               description:
- *                 type: string
  *     responses:
  *       201:
- *         description: New category added successfully
+ *         description: New unit added successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 categoryId:
+ *                 unitId:
  *                   type: number
  *                 name:
  *                   type: string
- *                 description:
- *                   type: string
- *                   nullable: true
  *       400:
  *         description: Invalid input data
  *         content:
@@ -78,7 +73,7 @@ export const categoriesRouter = Router();
  *                 message:
  *                   type: string
  *       409:
- *         description: Category with this name already exists
+ *         description: Unit already exists
  *         content:
  *           application/json:
  *             schema:
@@ -102,150 +97,24 @@ export const categoriesRouter = Router();
  *                 message:
  *                   type: string
  */
-categoriesRouter.post(
-  "/",
-  authenticateToken,
-  checkAdmin,
-  categoriesController.addCategory,
-);
+unitsRouter.post("/", authenticateToken, checkAdmin, unitsController.addUnit);
 
 /**
  * @swagger
- * /category/{categoryId}:
- *   patch:
- *     summary: Endpoint for updating an exisiting category
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: categoryId
- *         required: true
- *         schema:
- *           type: number
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               description:
- *                 type: string
- *     responses:
- *       200:
- *         description: Category updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 categoryId:
- *                   type: number
- *                 name:
- *                   type: string
- *                 description:
- *                   type: string
- *                   nullable: true
- *       400:
- *         description: Invalid input data
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *                 details:
- *                   type: object
- *       401:
- *         description: Authentication required
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *       403:
- *         description: Authenticated user is not an admin
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *       404:
- *         description: Category not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *       409:
- *         description: A category with the same name or description already exists
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- */
-categoriesRouter.patch(
-  "/:categoryId",
-  authenticateToken,
-  checkAdmin,
-  categoriesController.editCategory,
-);
-
-/**
- * @swagger
- * /category/{categoryId}:
+ * /units/{unitId}:
  *   delete:
- *     summary: Endpoint for removing an exisiting category
+ *     summary: Endpoint for removing an exisiting unit
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: categoryId
+ *         name: unitId
  *         required: true
  *         schema:
  *           type: number
  *     responses:
  *       204:
- *         description: Category deleted successfully
+ *         description: Unit deleted successfully
  *       400:
  *         description: Invalid input data
  *         content:
@@ -285,7 +154,7 @@ categoriesRouter.patch(
  *                 message:
  *                   type: string
  *       404:
- *         description: Category not found
+ *         description: Unit not found
  *         content:
  *           application/json:
  *             schema:
@@ -309,43 +178,38 @@ categoriesRouter.patch(
  *                 message:
  *                   type: string
  */
-categoriesRouter.delete(
-  "/:categoryId",
+unitsRouter.delete(
+  "/:unitId",
   authenticateToken,
   checkAdmin,
-  categoriesController.removeCategory,
+  unitsController.removeUnit,
 );
-
-// allowing get endpoints to be accessible to all authenticated users to view a list of the system's categories
 
 /**
  * @swagger
- * /category/{categoryId}:
+ * /units/{unitId}:
  *   get:
- *     summary: Endpoint for retrieving a single category
+ *     summary: Endpoint for retrieving a single unit
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: categoryId
+ *         name: unitId
  *         required: true
  *         schema:
  *           type: number
  *     responses:
  *       200:
- *         description: Category retrieved successfully
+ *         description: Unit retrieved successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 categoryId:
+ *                 ingredientId:
  *                   type: number
  *                 name:
  *                   type: string
- *                 description:
- *                   type: string
- *                   nullable: true
  *       400:
  *         description: Invalid input data
  *         content:
@@ -373,7 +237,7 @@ categoriesRouter.delete(
  *                 message:
  *                   type: string
  *       404:
- *         description: Category not found
+ *         description: Unit not found
  *         content:
  *           application/json:
  *             schema:
@@ -397,34 +261,27 @@ categoriesRouter.delete(
  *                 message:
  *                   type: string
  */
-categoriesRouter.get(
-  "/:categoryId",
-  authenticateToken,
-  categoriesController.getCategory,
-);
+unitsRouter.get("/:unitId", authenticateToken, unitsController.getUnit);
 
 /**
  * @swagger
- * /category:
+ * /units:
  *   get:
- *     summary: Endpoint for retrieving all categories
+ *     summary: Endpoint for retrieving all units
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Categories retrieved successfully
+ *         description: Units retrieved successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               properties:
- *                 categoryId:
+ *                 ingredientId:
  *                   type: number
  *                 name:
  *                   type: string
- *                 description:
- *                   type: string
- *                   nullable: true
  *       400:
  *         description: Invalid input data
  *         content:
@@ -464,10 +321,6 @@ categoriesRouter.get(
  *                 message:
  *                   type: string
  */
-categoriesRouter.get(
-  "/",
-  authenticateToken,
-  categoriesController.getCategories,
-);
+unitsRouter.get("/", authenticateToken, unitsController.getUnits);
 
-export default categoriesRouter;
+export default unitsRouter;

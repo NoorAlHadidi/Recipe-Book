@@ -1,14 +1,14 @@
 import { Router } from "express";
 import { checkAdmin, authenticateToken } from "@/middlewares";
-import { categoriesController } from "@/categories";
+import { ingredientsController } from "@/ingredients";
 
-export const categoriesRouter = Router();
+export const ingredientsRouter = Router();
 
 /**
  * @swagger
- * /category:
+ * /ingredients:
  *   post:
- *     summary: Endpoint for adding a new category
+ *     summary: Endpoint for adding a new ingredient
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -22,23 +22,18 @@ export const categoriesRouter = Router();
  *             properties:
  *               name:
  *                 type: string
- *               description:
- *                 type: string
  *     responses:
  *       201:
- *         description: New category added successfully
+ *         description: New ingredient added successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 categoryId:
+ *                 ingredientId:
  *                   type: number
  *                 name:
  *                   type: string
- *                 description:
- *                   type: string
- *                   nullable: true
  *       400:
  *         description: Invalid input data
  *         content:
@@ -78,7 +73,7 @@ export const categoriesRouter = Router();
  *                 message:
  *                   type: string
  *       409:
- *         description: Category with this name already exists
+ *         description: Ingredient with this name already exists
  *         content:
  *           application/json:
  *             schema:
@@ -102,23 +97,23 @@ export const categoriesRouter = Router();
  *                 message:
  *                   type: string
  */
-categoriesRouter.post(
+ingredientsRouter.post(
   "/",
   authenticateToken,
   checkAdmin,
-  categoriesController.addCategory,
+  ingredientsController.addIngredient,
 );
 
 /**
  * @swagger
- * /category/{categoryId}:
+ * /ingredients/{ingredientId}:
  *   patch:
- *     summary: Endpoint for updating an exisiting category
+ *     summary: Endpoint for updating an exisiting ingredient
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: categoryId
+ *         name: ingredientId
  *         required: true
  *         schema:
  *           type: number
@@ -131,23 +126,18 @@ categoriesRouter.post(
  *             properties:
  *               name:
  *                 type: string
- *               description:
- *                 type: string
  *     responses:
  *       200:
- *         description: Category updated successfully
+ *         description: Ingredient updated successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 categoryId:
+ *                 ingredientId:
  *                   type: number
  *                 name:
  *                   type: string
- *                 description:
- *                   type: string
- *                   nullable: true
  *       400:
  *         description: Invalid input data
  *         content:
@@ -187,7 +177,7 @@ categoriesRouter.post(
  *                 message:
  *                   type: string
  *       404:
- *         description: Category not found
+ *         description: Ingredient not found
  *         content:
  *           application/json:
  *             schema:
@@ -199,7 +189,7 @@ categoriesRouter.post(
  *                 message:
  *                   type: string
  *       409:
- *         description: A category with the same name or description already exists
+ *         description: An ingredient with the same name  already exists
  *         content:
  *           application/json:
  *             schema:
@@ -223,29 +213,29 @@ categoriesRouter.post(
  *                 message:
  *                   type: string
  */
-categoriesRouter.patch(
-  "/:categoryId",
+ingredientsRouter.patch(
+  "/:ingredientId",
   authenticateToken,
   checkAdmin,
-  categoriesController.editCategory,
+  ingredientsController.editIngredient,
 );
 
 /**
  * @swagger
- * /category/{categoryId}:
+ * /ingredients/{ingredientId}:
  *   delete:
- *     summary: Endpoint for removing an exisiting category
+ *     summary: Endpoint for removing an exisiting ingredient
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: categoryId
+ *         name: ingredientId
  *         required: true
  *         schema:
  *           type: number
  *     responses:
  *       204:
- *         description: Category deleted successfully
+ *         description: Ingredient deleted successfully
  *       400:
  *         description: Invalid input data
  *         content:
@@ -285,7 +275,7 @@ categoriesRouter.patch(
  *                 message:
  *                   type: string
  *       404:
- *         description: Category not found
+ *         description: Ingredient not found
  *         content:
  *           application/json:
  *             schema:
@@ -309,43 +299,40 @@ categoriesRouter.patch(
  *                 message:
  *                   type: string
  */
-categoriesRouter.delete(
-  "/:categoryId",
+ingredientsRouter.delete(
+  "/:ingredientId",
   authenticateToken,
   checkAdmin,
-  categoriesController.removeCategory,
+  ingredientsController.removeIngredient,
 );
 
-// allowing get endpoints to be accessible to all authenticated users to view a list of the system's categories
+// allowing get endpoints to be accessible to all authenticated users to view a list of the system's ingredients
 
 /**
  * @swagger
- * /category/{categoryId}:
+ * /ingredients/{ingredientId}:
  *   get:
- *     summary: Endpoint for retrieving a single category
+ *     summary: Endpoint for retrieving a single ingredient
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: categoryId
+ *         name: ingredientId
  *         required: true
  *         schema:
  *           type: number
  *     responses:
  *       200:
- *         description: Category retrieved successfully
+ *         description: Ingredient retrieved successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 categoryId:
+ *                 ingredientId:
  *                   type: number
  *                 name:
  *                   type: string
- *                 description:
- *                   type: string
- *                   nullable: true
  *       400:
  *         description: Invalid input data
  *         content:
@@ -373,7 +360,7 @@ categoriesRouter.delete(
  *                 message:
  *                   type: string
  *       404:
- *         description: Category not found
+ *         description: Ingredient not found
  *         content:
  *           application/json:
  *             schema:
@@ -397,34 +384,31 @@ categoriesRouter.delete(
  *                 message:
  *                   type: string
  */
-categoriesRouter.get(
-  "/:categoryId",
+ingredientsRouter.get(
+  "/:ingredientId",
   authenticateToken,
-  categoriesController.getCategory,
+  ingredientsController.getIngredient,
 );
 
 /**
  * @swagger
- * /category:
+ * /ingredients:
  *   get:
- *     summary: Endpoint for retrieving all categories
+ *     summary: Endpoint for retrieving all ingredients
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Categories retrieved successfully
+ *         description: Ingredients retrieved successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               properties:
- *                 categoryId:
+ *                 ingredientId:
  *                   type: number
  *                 name:
  *                   type: string
- *                 description:
- *                   type: string
- *                   nullable: true
  *       400:
  *         description: Invalid input data
  *         content:
@@ -464,10 +448,300 @@ categoriesRouter.get(
  *                 message:
  *                   type: string
  */
-categoriesRouter.get(
+ingredientsRouter.get(
   "/",
   authenticateToken,
-  categoriesController.getCategories,
+  ingredientsController.getIngredients,
 );
 
-export default categoriesRouter;
+/**
+ * @swagger
+ * /ingredients/{ingredientId}/units:
+ *   post:
+ *     summary: Endpoint for adding a valid unit to an ingredient
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: ingredientId
+ *         required: true
+ *         schema:
+ *           type: number
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *              - unitId
+ *             properties:
+ *               unitId:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: New ingredient unit added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ingredientId:
+ *                   type: number
+ *                 unitId:
+ *                   type: number
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Authenticated user is not an admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Ingredient or unit not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       409:
+ *         description: Unit is already valid for this ingredient
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+ingredientsRouter.post(
+  "/:ingredientId/units",
+  authenticateToken,
+  checkAdmin,
+  ingredientsController.addIngredientUnit,
+);
+
+/**
+ * @swagger
+ * /ingredients/{ingredientId}/units:
+ *   get:
+ *     summary: Endpoint for retrieving all valid units for an ingredient
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: ingredientId
+ *         required: true
+ *         schema:
+ *           type: number
+ *     responses:
+ *       200:
+ *         description: Ingredient units retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               properties:
+ *                 unitId:
+ *                   type: number
+ *                 unitName:
+ *                   type: string
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Ingredient not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+ingredientsRouter.get(
+  "/:ingredientId/units",
+  authenticateToken,
+  ingredientsController.getIngredientUnits,
+);
+
+/**
+ * @swagger
+ * /ingredients/{ingredientId}/units/{unitId}:
+ *   delete:
+ *     summary: Endpoint for removing an ingredient's valid unit
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: ingredientId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: unitId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: Ingredient unit deleted successfully
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Authenticated user is not an admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Ingredient, unit, or relationship between both not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+ingredientsRouter.delete(
+  "/:ingredientId/units/:unitId",
+  authenticateToken,
+  checkAdmin,
+  ingredientsController.removeIngredientUnit,
+);
+export default ingredientsRouter;

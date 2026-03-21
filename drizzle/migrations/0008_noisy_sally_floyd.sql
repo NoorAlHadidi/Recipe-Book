@@ -1,0 +1,1 @@
+ALTER TABLE "units" RENAME COLUMN "units_id" TO "unit_id";
