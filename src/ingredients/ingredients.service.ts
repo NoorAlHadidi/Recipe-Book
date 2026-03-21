@@ -9,7 +9,9 @@ import {
   AddIngredientDTO,
   EditIngredientDTO,
   AddIngredientUnitDTO,
+  checkIngredientExists,
 } from "@/ingredients";
+import { checkUnitExists } from "@/units";
 import { eq, ne, and } from "drizzle-orm";
 
 class IngredientsService {
@@ -40,14 +42,7 @@ class IngredientsService {
     ingredientId: number,
     editIngredientDTO: EditIngredientDTO,
   ) {
-    const existingIngredient = await databaseClient.db
-      .select()
-      .from(ingredientsTable)
-      .where(eq(ingredientsTable.ingredientId, ingredientId))
-      .execute();
-    if (existingIngredient.length === 0) {
-      throw new AppError("No ingredient with this ID exists.", 404);
-    }
+    await checkIngredientExists(ingredientId);
     const { name } = editIngredientDTO;
     const conflictIngredient = await databaseClient.db
       .select()
@@ -78,14 +73,7 @@ class IngredientsService {
   }
 
   async deleteIngredient(ingredientId: number) {
-    const existingIngredient = await databaseClient.db
-      .select()
-      .from(ingredientsTable)
-      .where(eq(ingredientsTable.ingredientId, ingredientId))
-      .execute();
-    if (existingIngredient.length === 0) {
-      throw new AppError("No ingredient with this ID exists.", 404);
-    }
+    await checkIngredientExists(ingredientId);
     await databaseClient.db
       .delete(ingredientsTable)
       .where(eq(ingredientsTable.ingredientId, ingredientId))
@@ -93,15 +81,7 @@ class IngredientsService {
   }
 
   async getIngredient(ingredientId: number) {
-    const existingIngredient = await databaseClient.db
-      .select()
-      .from(ingredientsTable)
-      .where(eq(ingredientsTable.ingredientId, ingredientId))
-      .execute();
-    if (existingIngredient.length === 0) {
-      throw new AppError("No ingredient with this ID exists.", 404);
-    }
-    return existingIngredient[0];
+    return await checkIngredientExists(ingredientId);
   }
 
   async getIngredients() {
@@ -117,22 +97,8 @@ class IngredientsService {
     addIngredientUnitDTO: AddIngredientUnitDTO,
   ) {
     const { unitId } = addIngredientUnitDTO;
-    const existingIngredient = await databaseClient.db
-      .select()
-      .from(ingredientsTable)
-      .where(eq(ingredientsTable.ingredientId, ingredientId))
-      .execute();
-    if (existingIngredient.length === 0) {
-      throw new AppError("No ingredient with this ID exists.", 404);
-    }
-    const existingUnit = await databaseClient.db
-      .select()
-      .from(unitsTable)
-      .where(eq(unitsTable.unitId, unitId))
-      .execute();
-    if (existingUnit.length === 0) {
-      throw new AppError("No unit with this ID exists.", 404);
-    }
+    await checkIngredientExists(ingredientId);
+    await checkUnitExists(unitId);
     const existingIngredientUnit = await databaseClient.db
       .select()
       .from(ingredientsUnitsTable)
@@ -164,14 +130,7 @@ class IngredientsService {
   }
 
   async getIngredientUnits(ingredientId: number) {
-    const existingIngredient = await databaseClient.db
-      .select()
-      .from(ingredientsTable)
-      .where(eq(ingredientsTable.ingredientId, ingredientId))
-      .execute();
-    if (existingIngredient.length === 0) {
-      throw new AppError("No ingredient with this ID exists.", 404);
-    }
+    await checkIngredientExists(ingredientId);
     const ingredientUnits = await databaseClient.db
       .select({
         unitId: unitsTable.unitId,
@@ -188,22 +147,8 @@ class IngredientsService {
   }
 
   async deleteIngredientUnit(ingredientId: number, unitId: number) {
-    const existingIngredient = await databaseClient.db
-      .select()
-      .from(ingredientsTable)
-      .where(eq(ingredientsTable.ingredientId, ingredientId))
-      .execute();
-    if (existingIngredient.length === 0) {
-      throw new AppError("No ingredient with this ID exists.", 404);
-    }
-    const existingUnit = await databaseClient.db
-      .select()
-      .from(unitsTable)
-      .where(eq(unitsTable.unitId, unitId))
-      .execute();
-    if (existingUnit.length === 0) {
-      throw new AppError("No unit with this ID exists.", 404);
-    }
+    await checkIngredientExists(ingredientId);
+    await checkUnitExists(unitId);
     const existingIngredientUnit = await databaseClient.db
       .select()
       .from(ingredientsUnitsTable)

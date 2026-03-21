@@ -1,6 +1,6 @@
 import { databaseClient, unitsTable } from "@/database";
 import { AppError } from "@/errors";
-import { AddUnitDTO } from "@/units";
+import { AddUnitDTO, checkUnitExists } from "@/units";
 import { eq } from "drizzle-orm";
 
 class UnitsService {
@@ -28,14 +28,7 @@ class UnitsService {
   }
 
   async deleteUnit(unitId: number) {
-    const existingUnit = await databaseClient.db
-      .select()
-      .from(unitsTable)
-      .where(eq(unitsTable.unitId, unitId))
-      .execute();
-    if (existingUnit.length === 0) {
-      throw new AppError("No unit with this ID exists.", 404);
-    }
+    await checkUnitExists(unitId);
     await databaseClient.db
       .delete(unitsTable)
       .where(eq(unitsTable.unitId, unitId))
@@ -43,15 +36,7 @@ class UnitsService {
   }
 
   async getUnit(unitId: number) {
-    const existingUnit = await databaseClient.db
-      .select()
-      .from(unitsTable)
-      .where(eq(unitsTable.unitId, unitId))
-      .execute();
-    if (existingUnit.length === 0) {
-      throw new AppError("No unit with this ID exists.", 404);
-    }
-    return existingUnit[0];
+    return await checkUnitExists(unitId);
   }
 
   async getUnits() {
