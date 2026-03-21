@@ -3,6 +3,7 @@ import { asyncErrorHandler } from "@/errors";
 import {
   addIngredientSchema,
   editIngredientSchema,
+  addIngredientUnitSchema,
   ingredientParamSchema,
   ingredientsService,
 } from "@/ingredients";
@@ -40,6 +41,16 @@ class IngredientsController {
   getIngredients = asyncErrorHandler(async (req: Request, res: Response) => {
     const ingredients = await ingredientsService.getIngredients();
     res.status(200).json(ingredients);
+  });
+
+  addIngredientUnit = asyncErrorHandler(async (req: Request, res: Response) => {
+    const { ingredientId } = ingredientParamSchema.parse(req.params);
+    const addIngredientUnitDTO = addIngredientUnitSchema.parse(req.body);
+    const newIngredientUnit = await ingredientsService.addIngredientUnit(
+      ingredientId,
+      addIngredientUnitDTO,
+    );
+    res.status(201).json(newIngredientUnit);
   });
 }
 

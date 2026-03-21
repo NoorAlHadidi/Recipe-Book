@@ -454,4 +454,122 @@ ingredientsRouter.get(
   ingredientsController.getIngredients,
 );
 
+/**
+ * @swagger
+ * /ingredients/{ingredientId}/units:
+ *   post:
+ *     summary: Endpoint for adding a valid unit to an ingredient
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: ingredientId
+ *         required: true
+ *         schema:
+ *           type: number
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *              - unitId
+ *             properties:
+ *               unitId:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: New ingredient unit added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ingredientId:
+ *                   type: number
+ *                 unitId:
+ *                   type: number
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Authenticated user is not an admin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Ingredient or unit not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       409:
+ *         description: Unit is already valid for this ingredient
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+ingredientsRouter.post(
+  "/:ingredientId/units",
+  authenticateToken,
+  checkAdmin,
+  ingredientsController.addIngredientUnit,
+);
+
 export default ingredientsRouter;

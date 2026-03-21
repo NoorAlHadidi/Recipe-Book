@@ -1,7 +1,16 @@
-import { databaseClient, ingredientsTable } from "@/database";
+import {
+  databaseClient,
+  ingredientsTable,
+  unitsTable,
+  ingredientsUnitsTable,
+} from "@/database";
 import { AppError } from "@/errors";
-import { AddIngredientDTO, EditIngredientDTO } from "@/ingredients";
-import { eq, ne, and, or } from "drizzle-orm";
+import {
+  AddIngredientDTO,
+  EditIngredientDTO,
+  AddIngredientUnitDTO,
+} from "@/ingredients";
+import { eq, ne, and } from "drizzle-orm";
 
 class IngredientsService {
   async addIngredient(addIngredientDTO: AddIngredientDTO) {
@@ -101,6 +110,57 @@ class IngredientsService {
       .from(ingredientsTable)
       .execute();
     return ingredients;
+  }
+
+  async addIngredientUnit(
+    ingredientId: number,
+    addIngredientUnitDTO: AddIngredientUnitDTO,
+  ) {
+    const { unitId } = addIngredientUnitDTO;
+    const existingIngredient = await databaseClient.db
+      .select()
+      .from(ingredientsTable)
+      .where(eq(ingredientsTable.ingredientId, ingredientId))
+      .execute();
+    if (existingIngredient.length === 0) {
+      throw new AppError("No ingredient with this ID exists.", 404);
+    }
+    const existingUnit = await databaseClient.db
+      .select()
+      .from(unitsTable)
+      .where(eq(unitsTable.unitId, unitId))
+      .execute();
+    if (existingUnit.length === 0) {
+      throw new AppError("No unit with this ID exists.", 404);
+    }
+    const existingIngredientUnit = await databaseClient.db
+      .select()
+      .from(ingredientsUnitsTable)
+      .where(
+        and(
+          eq(ingredientsUnitsTable.ingredientId, ingredientId),
+          eq(ingredientsUnitsTable.unitId, unitId),
+        ),
+      )
+      .execute();
+    if (existingIngredientUnit.length > 0) {
+      throw new AppError(
+        "This unit is already valid for the specified ingredient.",
+        409,
+      );
+    }
+    const newIngredientUnit = await databaseClient.db
+      .insert(ingredientsUnitsTable)
+      .values({
+        ingredientId: ingredientId,
+        unitId: unitId,
+      })
+      .returning({
+        ingredientId: ingredientsUnitsTable.ingredientId,
+        unitId: ingredientsUnitsTable.unitId,
+      })
+      .execute();
+    return newIngredientUnit[0];
   }
 }
 

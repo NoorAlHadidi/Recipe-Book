@@ -25,5 +25,13 @@ export const ingredientParamSchema = z.object({
     .positive("Ingredient ID must be a positive integer."),
 });
 
+export const addIngredientUnitSchema = z.object({
+  unitId: z.coerce
+    .number("Unit ID must be a number.")
+    .int("Unit ID must be an integer.")
+    .positive("Unit ID must be a positive integer."),
+});
+
 export type AddIngredientDTO = z.infer<typeof addIngredientSchema>;
 export type EditIngredientDTO = z.infer<typeof editIngredientSchema>;
+export type AddIngredientUnitDTO = z.infer<typeof addIngredientUnitSchema>;
