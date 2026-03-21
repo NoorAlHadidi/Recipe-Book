@@ -4,7 +4,7 @@ import { AddUnitDTO, checkUnitExists } from "@/units";
 import { eq } from "drizzle-orm";
 
 class UnitsService {
-  async addIngredient(addUnitDTO: AddUnitDTO) {
+  async addUnit(addUnitDTO: AddUnitDTO) {
     const { name } = addUnitDTO;
     const existingUnit = await databaseClient.db
       .select()

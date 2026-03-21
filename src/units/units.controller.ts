@@ -5,7 +5,7 @@ import { addUnitSchema, unitParamSchema, unitsService } from "@/units";
 class UnitsController {
   addUnit = asyncErrorHandler(async (req: Request, res: Response) => {
     const addUnitDto = addUnitSchema.parse(req.body);
-    const newUnit = await unitsService.addIngredient(addUnitDto);
+    const newUnit = await unitsService.addUnit(addUnitDto);
     res.status(201).json(newUnit);
   });
 
