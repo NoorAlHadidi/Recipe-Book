@@ -71,6 +71,20 @@
       "when": 1774033802615,
       "tag": "0009_glossy_captain_america",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1774141916620,
+      "tag": "0010_blushing_catseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1774141965306,
+      "tag": "0011_amusing_tiger_shark",
+      "breakpoints": true
     }
   ]
 }
