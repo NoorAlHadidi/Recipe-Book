@@ -18,4 +18,11 @@ export const addRecipeSchema = z.object({
     .positive("Category ID must be a positive integer."),
 });
 
+export const recipeParamSchema = z.object({
+  recipeId: z.coerce
+    .number("Recipe ID must be a number.")
+    .int("Recipe ID must be an integer.")
+    .positive("Recipe ID must be a positive integer."),
+});
+
 export type AddRecipeDTO = z.infer<typeof addRecipeSchema>;

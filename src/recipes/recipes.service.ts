@@ -35,6 +35,28 @@ class RecipesService {
       .execute();
     return newRecipe[0];
   }
+
+  async deleteRecipe(userId: number, recipeId: number) {
+    const existingRecipe = await databaseClient.db
+      .select({ creatorId: recipesTable.creatorId })
+      .from(recipesTable)
+      .where(eq(recipesTable.recipeId, recipeId))
+      .execute();
+    if (existingRecipe.length === 0) {
+      throw new AppError("No recipe with the specified ID exists.", 404);
+    }
+    const { creatorId } = existingRecipe[0];
+    if (creatorId !== userId) {
+      throw new AppError(
+        "Requesting user is not authorised to delete this recipe.",
+        403,
+      );
+    }
+    await databaseClient.db
+      .delete(recipesTable)
+      .where(eq(recipesTable.recipeId, recipeId))
+      .execute();
+  }
 }
 
 export const recipesService = new RecipesService();
