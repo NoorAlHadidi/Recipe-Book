@@ -30,6 +30,10 @@ export const recipesRouter = Router();
  *                 enum: [public, private]
  *               categoryId:
  *                 type: number
+ *               tagNames:
+ *                 type: array
+ *                 items: 
+ *                   type: string 
  *     responses:
  *       201:
  *         description: New recipe created successfully
@@ -221,6 +225,10 @@ recipesRouter.delete(
  *                 enum: [public, private]
  *               categoryId:
  *                 type: number
+ *               tagNames:
+ *                 type: array
+ *                 items: 
+ *                   type: string 
  *     responses:
  *       200:
  *         description: Recipe updated successfully

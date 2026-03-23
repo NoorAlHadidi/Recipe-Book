@@ -18,30 +18,65 @@ export const addRecipeSchema = z.object({
     .number("Category ID must be a number.")
     .int("Category ID must be an integer.")
     .positive("Category ID must be a positive integer."),
+  tagNames: z
+    .array(
+      z
+        .string("Tag name must be a string.")
+        .trim()
+        .toLowerCase()
+        .min(1, "Tag name is required.")
+        .max(100, "Tag must be at most 100 characters long"),
+    )
+    .transform((tagNames) => [...new Set(tagNames)])
+    .optional(),
 });
 
 export const editRecipeSchema = z
   .object({
-    title:  z
-    .string("Recipe title must be a string.")
-    .trim()
-    .max(100, "Recipe title must be at most 100 characters long.")
-    .optional(),
+    title: z
+      .string("Recipe title must be a string.")
+      .trim()
+      .max(100, "Recipe title must be at most 100 characters long.")
+      .optional(),
     description: z
-    .string("Recipe description must be a string.")
-    .trim()
-    .max(500, "Recipe description must be at most 500 characters long.")
-    .optional(),
+      .string("Recipe description must be a string.")
+      .trim()
+      .max(500, "Recipe description must be at most 500 characters long.")
+      .optional(),
     visibility: z
-    .enum(["private", "public"], "Visibility must be either public or private.").optional(),
+      .enum(
+        ["private", "public"],
+        "Visibility must be either public or private.",
+      )
+      .optional(),
     categoryId: z.coerce
-    .number("Category ID must be a number.")
-    .int("Category ID must be an integer.")
-    .positive("Category ID must be a positive integer.").optional(),
+      .number("Category ID must be a number.")
+      .int("Category ID must be an integer.")
+      .positive("Category ID must be a positive integer.")
+      .optional(),
+    tagNames: z
+      .array(
+        z
+          .string("Tag name must be a string.")
+          .trim()
+          .toLowerCase()
+          .min(1, "Tag name is required.")
+          .max(100, "Tag must be at most 100 characters long"),
+      )
+      .transform((tagNames) => [...new Set(tagNames)])
+      .optional(),
   })
-  .refine((body) => body.title !== undefined || body.description !== undefined || body.visibility !== undefined || body.categoryId !== undefined, {
-    message: "At least one field must be provided.",
-  });
+  .refine(
+    (body) =>
+      body.title !== undefined ||
+      body.description !== undefined ||
+      body.visibility !== undefined ||
+      body.categoryId !== undefined ||
+      body.tagNames !== undefined,
+    {
+      message: "At least one field must be provided.",
+    },
+  );
 
 export const recipeParamSchema = z.object({
   recipeId: z.coerce

@@ -1,11 +1,12 @@
 import { databaseClient, recipesTable, categoriesTable } from "@/database";
-import { AddRecipeDTO, EditRecipeDTO } from "@/recipes";
+import { AddRecipeDTO, EditRecipeDTO, checkRecipeTags } from "@/recipes";
 import { AppError } from "@/errors";
 import { eq } from "drizzle-orm";
 
 class RecipesService {
   async addRecipe(userId: number, addRecipeDTO: AddRecipeDTO) {
-    const { title, description, visibility, categoryId } = addRecipeDTO;
+    const { title, description, visibility, categoryId, tagNames } =
+      addRecipeDTO;
     const existingCategory = await databaseClient.db
       .select()
       .from(categoriesTable)
@@ -33,6 +34,9 @@ class RecipesService {
         createdAt: recipesTable.createdAt,
       })
       .execute();
+    if (tagNames !== undefined) {
+      await checkRecipeTags(newRecipe[0].recipeId, tagNames);
+    }
     return newRecipe[0];
   }
 
@@ -45,8 +49,7 @@ class RecipesService {
     if (existingRecipe.length === 0) {
       throw new AppError("No recipe with the specified ID exists.", 404);
     }
-    const { creatorId } = existingRecipe[0];
-    if (creatorId !== userId) {
+    if (existingRecipe[0].creatorId !== userId) {
       throw new AppError(
         "Requesting user is not authorised to delete this recipe.",
         403,
@@ -71,15 +74,14 @@ class RecipesService {
     if (existingRecipe.length === 0) {
       throw new AppError("No recipe with the specified ID exists.", 404);
     }
-
-    const { creatorId } = existingRecipe[0];
-    if (creatorId !== userId) {
+    if (existingRecipe[0].creatorId !== userId) {
       throw new AppError(
         "Requesting user is not authorised to delete this recipe.",
         403,
       );
     }
-    const { title, description, visibility, categoryId } = editRecipeDTO;
+    const { title, description, visibility, categoryId, tagNames } =
+      editRecipeDTO;
     const updateValues: any = {};
     if (categoryId !== undefined) {
       updateValues.categoryId = categoryId;
@@ -102,6 +104,9 @@ class RecipesService {
     if (visibility !== undefined) {
       updateValues.visibility = visibility;
     }
+    if (tagNames !== undefined) {
+      await checkRecipeTags(recipeId, tagNames);
+    }
     updateValues.updatedAt = new Date();
 
     const updatedRecipe = await databaseClient.db
@@ -123,9 +128,10 @@ class RecipesService {
     if (existingRecipe.length === 0) {
       throw new AppError("No recipe with the specified ID exists.", 404);
     }
-
-    const { creatorId, visibility } = existingRecipe[0];
-    if (creatorId !== userId && visibility === "private") {
+    if (
+      existingRecipe[0].creatorId !== userId &&
+      existingRecipe[0].visibility === "private"
+    ) {
       throw new AppError(
         "Requesting user is not authorised to view this recipe.",
         403,
