@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 import { asyncErrorHandler } from "@/errors";
-import { addRecipeSchema, editRecipeSchema, recipeParamSchema, recipesService } from "@/recipes";
+import {
+  addRecipeSchema,
+  editRecipeSchema,
+  recipeParamSchema,
+  recipesService,
+} from "@/recipes";
 
 class RecipesController {
   addRecipe = asyncErrorHandler(async (req: Request, res: Response) => {
@@ -21,10 +26,20 @@ class RecipesController {
     const { recipeId } = recipeParamSchema.parse(req.params);
     const userId = req.user!.sub;
     const editRecipeDTO = editRecipeSchema.parse(req.body);
-    const updatedRecipe = await recipesService.editRecipe(recipeId, userId, editRecipeDTO
+    const updatedRecipe = await recipesService.editRecipe(
+      userId,
+      recipeId,
+      editRecipeDTO,
     );
     res.status(200).json(updatedRecipe);
-  });  
+  });
+
+  getRecipe = asyncErrorHandler(async (req: Request, res: Response) => {
+    const { recipeId } = recipeParamSchema.parse(req.params);
+    const userId = req.user!.sub;
+    const recipe = await recipesService.getRecipe(userId, recipeId);
+    res.status(200).json(recipe);
+  });
 }
 
 export const recipesController = new RecipesController();

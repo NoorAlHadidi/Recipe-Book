@@ -59,8 +59,8 @@ class RecipesService {
   }
 
   async editRecipe(
-    recipeId: number,
     userId: number,
+    recipeId: number,
     editRecipeDTO: EditRecipeDTO,
   ) {
     const existingRecipe = await databaseClient.db
@@ -112,6 +112,26 @@ class RecipesService {
       .execute();
 
     return updatedRecipe[0];
+  }
+
+  async getRecipe(userId: number, recipeId: number) {
+    const existingRecipe = await databaseClient.db
+      .select()
+      .from(recipesTable)
+      .where(eq(recipesTable.recipeId, recipeId))
+      .execute();
+    if (existingRecipe.length === 0) {
+      throw new AppError("No recipe with the specified ID exists.", 404);
+    }
+
+    const { creatorId, visibility } = existingRecipe[0];
+    if (creatorId !== userId && visibility === "private") {
+      throw new AppError(
+        "Requesting user is not authorised to view this recipe.",
+        403,
+      );
+    }
+    return existingRecipe[0];
   }
 }
 
