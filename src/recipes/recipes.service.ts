@@ -1,12 +1,23 @@
 import { databaseClient, recipesTable, categoriesTable } from "@/database";
-import { AddRecipeDTO, EditRecipeDTO, checkRecipeTags } from "@/recipes";
+import {
+  AddRecipeDTO,
+  EditRecipeDTO,
+  checkRecipeIngredients,
+  checkRecipeTags,
+} from "@/recipes";
 import { AppError } from "@/errors";
 import { eq } from "drizzle-orm";
 
 class RecipesService {
   async addRecipe(userId: number, addRecipeDTO: AddRecipeDTO) {
-    const { title, description, visibility, categoryId, tagNames } =
-      addRecipeDTO;
+    const {
+      title,
+      description,
+      visibility,
+      categoryId,
+      tagNames,
+      ingredients,
+    } = addRecipeDTO;
     const existingCategory = await databaseClient.db
       .select()
       .from(categoriesTable)
@@ -36,6 +47,9 @@ class RecipesService {
       .execute();
     if (tagNames !== undefined) {
       await checkRecipeTags(newRecipe[0].recipeId, tagNames);
+    }
+    if (ingredients !== undefined) {
+      await checkRecipeIngredients(newRecipe[0].recipeId, ingredients);
     }
     return newRecipe[0];
   }

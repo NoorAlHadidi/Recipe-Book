@@ -4,7 +4,7 @@ import {
   serial,
   varchar,
   integer,
-  numeric,
+  real,
   primaryKey,
   timestamp,
 } from "drizzle-orm/pg-core";
@@ -63,7 +63,7 @@ export const recipesIngredientsTable = pgTable(
     unitId: integer("unit_id")
       .notNull()
       .references(() => unitsTable.unitId, { onDelete: "cascade" }),
-    quantity: numeric("quantity", { precision: 5, scale: 2 }).notNull(),
+    quantity: real("quantity").notNull(),
     notes: varchar("notes", { length: 500 }),
   },
   (table) => [

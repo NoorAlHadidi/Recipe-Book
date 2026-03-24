@@ -1,0 +1,1 @@
+ALTER TABLE "recipes_ingredients" ALTER COLUMN "quantity" SET DATA TYPE real;

@@ -25,9 +25,30 @@ export const addRecipeSchema = z.object({
         .trim()
         .toLowerCase()
         .min(1, "Tag name is required.")
-        .max(100, "Tag must be at most 100 characters long"),
+        .max(100, "Tag must be at most 100 characters long."),
     )
     .transform((tagNames) => [...new Set(tagNames)])
+    .optional(),
+  ingredients: z
+    .array(
+      z.object({
+        ingredientId: z.coerce
+          .number("Ingredient ID must be a number.")
+          .int("Ingredient ID must be an integer.")
+          .positive("Ingredient ID must be a positive integer."),
+        quantity: z.coerce
+          .number("Quantity must be a number.")
+          .positive("Quantity must be a positive number."),
+        unitId: z.coerce
+          .number("Unit ID must be a number.")
+          .int("Unit ID must be an integer.")
+          .positive("Unit ID must be a positive integer."),
+        notes: z
+          .string("Notes must be a string.")
+          .max(500, "Notes must be at most 500 characters long.")
+          .optional(),
+      }),
+    )
     .optional(),
 });
 

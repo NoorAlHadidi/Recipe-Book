@@ -34,6 +34,23 @@ export const recipesRouter = Router();
  *                 type: array
  *                 items: 
  *                   type: string 
+ *               ingredients:
+ *                 type: array
+ *                 items: 
+ *                   type: object
+ *                   required: 
+ *                      - ingredientId
+ *                      - quantity
+ *                      - unitId
+ *                   properties:
+ *                      ingredientId:
+ *                          type: number
+ *                      quantity:
+ *                          type: number
+ *                      unitId:
+ *                          type: number
+ *                      notes:
+ *                          type: string                  
  *     responses:
  *       201:
  *         description: New recipe created successfully
