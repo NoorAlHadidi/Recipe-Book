@@ -72,7 +72,10 @@ export const checkRecipeIngredients = async (
       .where(eq(ingredientsTable.ingredientId, ingredientId))
       .execute();
     if (existingIngredient.length === 0) {
-      throw new AppError("No ingredient with the specified ID exists.", 404);
+      throw new AppError(
+        `Ingredient with ID ${ingredientId} does not exist.`,
+        404,
+      );
     }
 
     const existingUnit = await tx
@@ -81,7 +84,7 @@ export const checkRecipeIngredients = async (
       .where(eq(unitsTable.unitId, unitId))
       .execute();
     if (existingUnit.length === 0) {
-      throw new AppError("No unit with the specified ID exists.", 404);
+      throw new AppError(`Unit with ID ${unitId} does not exist.`, 404);
     }
 
     const existingIngredientUnit = await tx
@@ -96,7 +99,7 @@ export const checkRecipeIngredients = async (
       .execute();
     if (existingIngredientUnit.length === 0) {
       throw new AppError(
-        "This unit is not valid for the specified ingredient.",
+        `Unit with ID ${unitId} is not valid for ingredient with ID ${ingredientId}.`,
         400,
       );
     }
@@ -112,7 +115,7 @@ export const checkRecipeIngredients = async (
       .execute();
     if (existingRecipeIngredient.length > 0) {
       throw new AppError(
-        "Ingredient has already been added to the recipe.",
+        `Ingredient with ID ${ingredientId} already exists in this recipe.`,
         409,
       );
     }
