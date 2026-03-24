@@ -18,40 +18,42 @@ class RecipesService {
       tagNames,
       ingredients,
     } = addRecipeDTO;
-    const existingCategory = await databaseClient.db
-      .select()
-      .from(categoriesTable)
-      .where(eq(categoriesTable.categoryId, categoryId))
-      .execute();
-    if (existingCategory.length === 0) {
-      throw new AppError("No category with the specified ID exists.", 404);
-    }
-    const newRecipe = await databaseClient.db
-      .insert(recipesTable)
-      .values({
-        title: title,
-        description: description,
-        visibility: visibility,
-        creatorId: userId,
-        categoryId: categoryId,
-      })
-      .returning({
-        recipeId: recipesTable.recipeId,
-        title: recipesTable.title,
-        description: recipesTable.description,
-        visibility: recipesTable.visibility,
-        categoryId: recipesTable.categoryId,
-        creatorId: recipesTable.creatorId,
-        createdAt: recipesTable.createdAt,
-      })
-      .execute();
-    if (tagNames !== undefined) {
-      await checkRecipeTags(newRecipe[0].recipeId, tagNames);
-    }
-    if (ingredients !== undefined) {
-      await checkRecipeIngredients(newRecipe[0].recipeId, ingredients);
-    }
-    return newRecipe[0];
+    await databaseClient.db.transaction(async (tx) => {
+      const existingCategory = await tx
+        .select()
+        .from(categoriesTable)
+        .where(eq(categoriesTable.categoryId, categoryId))
+        .execute();
+      if (existingCategory.length === 0) {
+        throw new AppError("No category with the specified ID exists.", 404);
+      }
+      const newRecipe = await tx
+        .insert(recipesTable)
+        .values({
+          title: title,
+          description: description,
+          visibility: visibility,
+          creatorId: userId,
+          categoryId: categoryId,
+        })
+        .returning({
+          recipeId: recipesTable.recipeId,
+          title: recipesTable.title,
+          description: recipesTable.description,
+          visibility: recipesTable.visibility,
+          categoryId: recipesTable.categoryId,
+          creatorId: recipesTable.creatorId,
+          createdAt: recipesTable.createdAt,
+        })
+        .execute();
+      if (tagNames !== undefined) {
+        await checkRecipeTags(newRecipe[0].recipeId, tagNames, tx);
+      }
+      if (ingredients !== undefined) {
+        await checkRecipeIngredients(newRecipe[0].recipeId, ingredients, tx);
+      }
+      return newRecipe[0];
+    });
   }
 
   async deleteRecipe(userId: number, recipeId: number) {
@@ -80,57 +82,68 @@ class RecipesService {
     recipeId: number,
     editRecipeDTO: EditRecipeDTO,
   ) {
-    const existingRecipe = await databaseClient.db
-      .select({ creatorId: recipesTable.creatorId })
-      .from(recipesTable)
-      .where(eq(recipesTable.recipeId, recipeId))
-      .execute();
-    if (existingRecipe.length === 0) {
-      throw new AppError("No recipe with the specified ID exists.", 404);
-    }
-    if (existingRecipe[0].creatorId !== userId) {
-      throw new AppError(
-        "Requesting user is not authorised to delete this recipe.",
-        403,
-      );
-    }
-    const { title, description, visibility, categoryId, tagNames } =
-      editRecipeDTO;
-    const updateValues: any = {};
-    if (categoryId !== undefined) {
-      updateValues.categoryId = categoryId;
-      const existingCategory = await databaseClient.db
-        .select()
-        .from(categoriesTable)
-        .where(eq(categoriesTable.categoryId, categoryId))
+    await databaseClient.db.transaction(async (tx) => {
+      const existingRecipe = await tx
+        .select({ creatorId: recipesTable.creatorId })
+        .from(recipesTable)
+        .where(eq(recipesTable.recipeId, recipeId))
+        .execute();
+      if (existingRecipe.length === 0) {
+        throw new AppError("No recipe with the specified ID exists.", 404);
+      }
+      if (existingRecipe[0].creatorId !== userId) {
+        throw new AppError(
+          "Requesting user is not authorised to delete this recipe.",
+          403,
+        );
+      }
+      const {
+        title,
+        description,
+        visibility,
+        categoryId,
+        tagNames,
+        ingredients,
+      } = editRecipeDTO;
+      const updateValues: any = {};
+      if (categoryId !== undefined) {
+        updateValues.categoryId = categoryId;
+        const existingCategory = await tx
+          .select()
+          .from(categoriesTable)
+          .where(eq(categoriesTable.categoryId, categoryId))
+          .execute();
+
+        if (existingCategory.length === 0) {
+          throw new AppError("No category with the specified ID exists.", 404);
+        }
+      }
+      if (title !== undefined) {
+        updateValues.title = title;
+      }
+      if (description !== undefined) {
+        updateValues.description = description;
+      }
+      if (visibility !== undefined) {
+        updateValues.visibility = visibility;
+      }
+      if (tagNames !== undefined) {
+        await checkRecipeTags(recipeId, tagNames, tx);
+      }
+      if (ingredients !== undefined) {
+        await checkRecipeIngredients(recipeId, ingredients, tx);
+      }
+      updateValues.updatedAt = new Date();
+
+      const updatedRecipe = await tx
+        .update(recipesTable)
+        .set(updateValues)
+        .where(eq(recipesTable.recipeId, recipeId))
+        .returning()
         .execute();
 
-      if (existingCategory.length === 0) {
-        throw new AppError("No category with the specified ID exists.", 404);
-      }
-    }
-    if (title !== undefined) {
-      updateValues.title = title;
-    }
-    if (description !== undefined) {
-      updateValues.description = description;
-    }
-    if (visibility !== undefined) {
-      updateValues.visibility = visibility;
-    }
-    if (tagNames !== undefined) {
-      await checkRecipeTags(recipeId, tagNames);
-    }
-    updateValues.updatedAt = new Date();
-
-    const updatedRecipe = await databaseClient.db
-      .update(recipesTable)
-      .set(updateValues)
-      .where(eq(recipesTable.recipeId, recipeId))
-      .returning()
-      .execute();
-
-    return updatedRecipe[0];
+      return updatedRecipe[0];
+    });
   }
 
   async getRecipe(userId: number, recipeId: number) {

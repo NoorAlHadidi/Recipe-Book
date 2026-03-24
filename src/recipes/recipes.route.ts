@@ -246,6 +246,23 @@ recipesRouter.delete(
  *                 type: array
  *                 items: 
  *                   type: string 
+ *               ingredients:
+ *                 type: array
+ *                 items: 
+ *                   type: object
+ *                   required: 
+ *                      - ingredientId
+ *                      - quantity
+ *                      - unitId
+ *                   properties:
+ *                      ingredientId:
+ *                          type: number
+ *                      quantity:
+ *                          type: number
+ *                      unitId:
+ *                          type: number
+ *                      notes:
+ *                          type: string            
  *     responses:
  *       200:
  *         description: Recipe updated successfully
