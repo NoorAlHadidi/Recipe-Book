@@ -146,6 +146,17 @@ export const recipeStepParamSchema = z.object({
     .positive("Step number must be a positive integer."),
 });
 
+export const recipeIngParamSchema = z.object({
+  recipeId: z.coerce
+    .number("Recipe ID must be a number.")
+    .int("Recipe ID must be an integer.")
+    .positive("Recipe ID must be a positive integer."),
+  ingredientId: z.coerce
+    .number("Ingredient ID must be a number.")
+    .int("Ingredient ID must be an integer.")
+    .positive("Ingredient ID must be a positive integer."),
+});
+
 export const recipeQueryParamsSchema = z.object({
   page: z.coerce
     .number("Page must be a number.")
@@ -177,7 +188,7 @@ export const recipeQueryParamsSchema = z.object({
     .optional(),
 });
 
-export const addRecipeIngredientsSchema = z.object({
+export const addRecipeIngsSchema = z.object({
   ingredients: z.array(
     z.object({
       ingredientId: z.coerce
@@ -200,11 +211,39 @@ export const addRecipeIngredientsSchema = z.object({
   ),
 });
 
+export const editRecipeIngSchema = z
+  .object({
+    quantity: z.coerce
+      .number("Quantity must be a number.")
+      .positive("Quantity must be a positive number.")
+      .optional(),
+    unitId: z.coerce
+      .number("Unit ID must be a number.")
+      .int("Unit ID must be an integer.")
+      .positive("Unit ID must be a positive integer.")
+      .optional(),
+    notes: z
+      .string("Notes must be a string.")
+      .trim()
+      .max(500, "Notes must be at most 500 characters.")
+      .optional(),
+  })
+  .refine(
+    (body) =>
+      body.quantity !== undefined ||
+      body.unitId !== undefined ||
+      body.notes !== undefined,
+    {
+      message: "At least one field must be provided.",
+    },
+  );
+
 export type AddRecipeDTO = z.infer<typeof addRecipeSchema>;
 export type EditRecipeDTO = z.infer<typeof editRecipeSchema>;
 export type AddRecipeStepsDTO = z.infer<typeof addRecipeStepsSchema>;
 export type EditRecipeStepDTO = z.infer<typeof editRecipeStepSchema>;
 export type RecipeQueryParamDTO = z.infer<typeof recipeQueryParamsSchema>;
-export type AddRecipeIngredientsDTO = z.infer<
-  typeof addRecipeIngredientsSchema
+export type AddRecipeIngsDTO = z.infer<
+  typeof addRecipeIngsSchema
 >;
+export type EditRecipeIngDTO = z.infer<typeof editRecipeIngSchema>;

@@ -10,8 +10,10 @@ import {
   recipeStepsService,
   editRecipeStepSchema,
   recipeStepParamSchema,
-  addRecipeIngredientsSchema,
+  addRecipeIngsSchema,
   recipeIngredientsService,
+  recipeIngParamSchema,
+  editRecipeIngSchema,
 } from "@/recipes";
 
 class RecipesController {
@@ -98,15 +100,28 @@ class RecipesController {
     async (req: Request, res: Response) => {
       const { recipeId } = recipeParamSchema.parse(req.params);
       const userId = req.user!.sub;
-      const addRecipeIngredientsDTO = addRecipeIngredientsSchema.parse(
-        req.body,
-      );
+      const addRecipeIngredientsDTO = addRecipeIngsSchema.parse(req.body);
       const recipeIngredients = await recipeIngredientsService.addIngredients(
         userId,
         recipeId,
         addRecipeIngredientsDTO,
       );
       res.status(201).json(recipeIngredients);
+    },
+  );
+
+  editRecipeIngredient = asyncErrorHandler(
+    async (req: Request, res: Response) => {
+      const { recipeId, ingredientId } = recipeIngParamSchema.parse(req.params);
+      const userId = req.user!.sub;
+      const editRecipeIngDTO = editRecipeIngSchema.parse(req.body);
+      const recipeIngs = await recipeIngredientsService.editIngredient(
+        userId,
+        recipeId,
+        ingredientId,
+        editRecipeIngDTO,
+      );
+      res.status(200).json(recipeIngs);
     },
   );
 }

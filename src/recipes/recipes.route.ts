@@ -1103,4 +1103,123 @@ recipesRouter.post(
   recipesController.addRecipeIngredients,
 );
 
+/**
+ * @swagger
+ * /recipes/{recipeId}/ingredients/{ingredientId}:
+ *   patch:
+ *     summary: Endpoint for editting an ingredient for a recipe
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: ingredientId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               unitId:
+ *                 type: number
+ *                 nullable: true 
+ *               quantity:
+ *                 type: number
+ *                 nullable: true 
+ *               notes:
+ *                 type: string
+ *                 nullable: true 
+ *     responses:
+ *       200:
+ *         description: Ingredient editted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               properties:
+ *                 ingredientId:
+ *                   type: number
+ *                 quantity:
+ *                   type: number
+ *                 unitId:
+ *                   type: number
+ *                 notes:
+ *                   type: string
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Authenticated user is not the recipe creator (Not allowed to edit ingredients)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Resource (recipe / ingredient / unit) not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+recipesRouter.patch(
+  "/:recipeId/ingredients/:ingredientId",
+  authenticateToken,
+  recipesController.editRecipeIngredient,
+);
+
 export default recipesRouter;
