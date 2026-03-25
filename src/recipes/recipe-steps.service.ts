@@ -1,7 +1,11 @@
 import { databaseClient, recipesTable, stepsTable } from "@/database";
 import { AppError } from "@/errors";
-import { checkRecipeExists, AddRecipeStepsDTO, EditRecipeStepDTO } from "@/recipes";
-import { eq, max, and } from "drizzle-orm";
+import {
+  checkRecipeExists,
+  AddRecipeStepsDTO,
+  EditRecipeStepDTO,
+} from "@/recipes";
+import { eq, max, and, gt, sql } from "drizzle-orm";
 
 class RecipeStepsService {
   async addSteps(
@@ -51,7 +55,12 @@ class RecipeStepsService {
     return recipeSteps;
   }
 
-  async editStep(userId: number, recipeId: number, stepNumber: number, stepDTO: EditRecipeStepDTO) {
+  async editStep(
+    userId: number,
+    recipeId: number,
+    stepNumber: number,
+    stepDTO: EditRecipeStepDTO,
+  ) {
     const existingRecipe = await checkRecipeExists(recipeId);
     if (existingRecipe.creatorId !== userId) {
       throw new AppError(
@@ -100,6 +109,55 @@ class RecipeStepsService {
       .orderBy(stepsTable.stepNumber)
       .execute();
     return updatedRecipeSteps;
+  }
+
+  async deleteStep(userId: number, recipeId: number, stepNumber: number) {
+    const existingRecipe = await checkRecipeExists(recipeId);
+    if (existingRecipe.creatorId !== userId) {
+      throw new AppError(
+        "Requesting user is not authorised to edit this recipe.",
+        403,
+      );
+    }
+    const existingStep = await databaseClient.db
+      .select()
+      .from(stepsTable)
+      .where(
+        and(
+          eq(stepsTable.recipeId, recipeId),
+          eq(stepsTable.stepNumber, stepNumber),
+        ),
+      )
+      .execute();
+    if (existingStep.length === 0) {
+      throw new AppError("Step does not exist for this recipe.", 404);
+    }
+    await databaseClient.db.transaction(async (tx) => {
+      await tx
+        .delete(stepsTable)
+        .where(
+          and(
+            eq(stepsTable.recipeId, recipeId),
+            eq(stepsTable.stepNumber, stepNumber),
+          ),
+        );
+      await tx
+        .update(stepsTable)
+        .set({
+          stepNumber: sql`${stepsTable.stepNumber} - 1`,
+        })
+        .where(
+          and(
+            eq(stepsTable.recipeId, recipeId),
+            gt(stepsTable.stepNumber, stepNumber),
+          ),
+        );
+      await tx
+        .update(recipesTable)
+        .set({ updatedAt: new Date() })
+        .where(eq(recipesTable.recipeId, recipeId))
+        .execute();
+    });
   }
 }
 

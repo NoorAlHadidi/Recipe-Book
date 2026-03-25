@@ -689,12 +689,16 @@ recipesRouter.get("/", authenticateToken, recipesController.getRecipes);
  *                 message:
  *                   type: string
  */
-recipesRouter.post("/:recipeId/steps", authenticateToken, recipesController.addRecipeSteps);
+recipesRouter.post(
+  "/:recipeId/steps",
+  authenticateToken,
+  recipesController.addRecipeSteps,
+);
 
 /**
  * @swagger
  * /recipes/{recipeId}/steps/{stepNumber}:
- *   post:
+ *   patch:
  *     summary: Endpoint for editting a step instruction for a recipe
  *     security:
  *       - bearerAuth: []
@@ -720,7 +724,7 @@ recipesRouter.post("/:recipeId/steps", authenticateToken, recipesController.addR
  *                 type: string
  *     responses:
  *       200:
- *         description: Step editted added successfully
+ *         description: Step editted successfully
  *         content:
  *           application/json:
  *             schema:
@@ -769,7 +773,7 @@ recipesRouter.post("/:recipeId/steps", authenticateToken, recipesController.addR
  *                 message:
  *                   type: string
  *       404:
- *         description: Recipe with specified ID is not found
+ *         description: Recipe with specified ID is not found / Step is not found in specified recipe
  *         content:
  *           application/json:
  *             schema:
@@ -793,6 +797,99 @@ recipesRouter.post("/:recipeId/steps", authenticateToken, recipesController.addR
  *                 message:
  *                   type: string
  */
-recipesRouter.post("/:recipeId/steps/:stepNumber", authenticateToken, recipesController.editRecipeStep);
+recipesRouter.patch(
+  "/:recipeId/steps/:stepNumber",
+  authenticateToken,
+  recipesController.editRecipeStep,
+);
 
+/**
+ * @swagger
+ * /recipes/{recipeId}/steps/{stepNumber}:
+ *   delete:
+ *     summary: Endpoint for deleting a step in a recipe
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: stepNumber
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: Step deleted successfully
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Authenticated user is not the recipe creator (Not allowed to delete steps)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Recipe with specified ID is not found / Step is not found in specified recipe
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+recipesRouter.delete(
+  "/:recipeId/steps/:stepNumber",
+  authenticateToken,
+  recipesController.deleteRecipeStep,
+);
 export default recipesRouter;
