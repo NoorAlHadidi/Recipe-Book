@@ -1,12 +1,18 @@
-import { databaseClient, recipesTable, categoriesTable } from "@/database";
+import {
+  databaseClient,
+  recipesTable,
+  categoriesTable,
+  recipesTagsTable,
+} from "@/database";
 import {
   AddRecipeDTO,
   EditRecipeDTO,
+  RecipeQueryParamDTO,
   checkRecipeIngredients,
   checkRecipeTags,
 } from "@/recipes";
 import { AppError } from "@/errors";
-import { eq } from "drizzle-orm";
+import { eq, or, and, ilike, sql } from "drizzle-orm";
 
 class RecipesService {
   async addRecipe(userId: number, addRecipeDTO: AddRecipeDTO) {
@@ -165,6 +171,78 @@ class RecipesService {
       );
     }
     return existingRecipe[0];
+  }
+
+  async getRecipes(userId: number, recipeQueryParams: RecipeQueryParamDTO) {
+    const { page, limit, title, creatorId, categoryId, tagId } =
+      recipeQueryParams;
+    const offset = (page - 1) * limit;
+    let recipesQuery;
+    const filterConditions = [];
+    filterConditions.push(
+      or(
+        eq(recipesTable.visibility, "public"),
+        eq(recipesTable.creatorId, userId),
+      ),
+    );
+
+    if (title !== undefined) {
+      filterConditions.push(ilike(recipesTable.title, `%${title}%`));
+    }
+    if (creatorId !== undefined) {
+      filterConditions.push(eq(recipesTable.creatorId, creatorId));
+    }
+    if (categoryId !== undefined) {
+      filterConditions.push(eq(recipesTable.categoryId, categoryId));
+    }
+    if (tagId !== undefined) {
+      filterConditions.push(eq(recipesTagsTable.tagId, tagId));
+      recipesQuery = await databaseClient.db
+        .select({
+          recipeId: recipesTable.recipeId,
+          title: recipesTable.title,
+          description: recipesTable.description,
+          visibility: recipesTable.visibility,
+          creatorId: recipesTable.creatorId,
+          categoryId: recipesTable.categoryId,
+          createdAt: recipesTable.createdAt,
+          updatedAt: recipesTable.updatedAt,
+          total: sql`count(*) over()`.mapWith(Number),
+        })
+        .from(recipesTable)
+        .innerJoin(
+          recipesTagsTable,
+          eq(recipesTagsTable.recipeId, recipesTable.recipeId),
+        )
+        .where(and(...filterConditions))
+        .limit(limit)
+        .offset(offset)
+        .execute();
+    } else {
+      recipesQuery = await databaseClient.db
+        .select({
+          recipeId: recipesTable.recipeId,
+          title: recipesTable.title,
+          description: recipesTable.description,
+          visibility: recipesTable.visibility,
+          creatorId: recipesTable.creatorId,
+          categoryId: recipesTable.categoryId,
+          createdAt: recipesTable.createdAt,
+          updatedAt: recipesTable.updatedAt,
+          total: sql`count(*) over()`.mapWith(Number),
+        })
+        .from(recipesTable)
+        .where(and(...filterConditions))
+        .limit(limit)
+        .offset(offset)
+        .execute();
+    }
+    return {
+      page,
+      limit,
+      total: recipesQuery.length > 0 ? recipesQuery[0].total : 0,
+      recipes: recipesQuery.map(({ total, ...recipe }) => recipe)
+    };
   }
 }
 

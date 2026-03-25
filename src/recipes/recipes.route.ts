@@ -32,13 +32,13 @@ export const recipesRouter = Router();
  *                 type: number
  *               tagNames:
  *                 type: array
- *                 items: 
- *                   type: string 
+ *                 items:
+ *                   type: string
  *               ingredients:
  *                 type: array
- *                 items: 
+ *                 items:
  *                   type: object
- *                   required: 
+ *                   required:
  *                      - ingredientId
  *                      - quantity
  *                      - unitId
@@ -50,7 +50,7 @@ export const recipesRouter = Router();
  *                      unitId:
  *                          type: number
  *                      notes:
- *                          type: string                  
+ *                          type: string
  *     responses:
  *       201:
  *         description: New recipe created successfully
@@ -244,13 +244,13 @@ recipesRouter.delete(
  *                 type: number
  *               tagNames:
  *                 type: array
- *                 items: 
- *                   type: string 
+ *                 items:
+ *                   type: string
  *               ingredients:
  *                 type: array
- *                 items: 
+ *                 items:
  *                   type: object
- *                   required: 
+ *                   required:
  *                      - ingredientId
  *                      - quantity
  *                      - unitId
@@ -262,7 +262,7 @@ recipesRouter.delete(
  *                      unitId:
  *                          type: number
  *                      notes:
- *                          type: string            
+ *                          type: string
  *     responses:
  *       200:
  *         description: Recipe updated successfully
@@ -464,10 +464,124 @@ recipesRouter.patch(
  *                 message:
  *                   type: string
  */
-recipesRouter.get(
-  "/:recipeId",
-  authenticateToken,
-  recipesController.getRecipe,
-);
+recipesRouter.get("/:recipeId", authenticateToken, recipesController.getRecipe);
+
+/**
+ * @swagger
+ * /recipes:
+ *   get:
+ *     summary: Endpoint for filtering and retrieving recipes
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: true
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: limit
+ *         required: true
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: title
+ *         required: false
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: creatorId
+ *         required: false
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: categoryId
+ *         required: false
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: tagId
+ *         required: false
+ *         schema:
+ *           type: number
+ *     responses:
+ *       200:
+ *         description: Recipes retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 page:
+ *                   type: number
+ *                 limit:
+ *                   type: number
+ *                 total:
+ *                   type: number
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                      type: object
+ *                      properties: 
+ *                        recipeId:
+ *                          type: number
+ *                        title:
+ *                          type: string
+ *                        description:
+ *                          type: string
+ *                          nullable: true
+ *                        visibility:
+ *                          type: string
+ *                          enum: [public, private]
+ *                        creatorId:
+ *                          type: number
+ *                        categoryId:
+ *                          type: number
+ *                        createdAt:
+ *                          type: number
+ *                          format: date-time
+ *                        updatedAt:
+ *                          type: number
+ *                          format: date-time
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+recipesRouter.get("/", authenticateToken, recipesController.getRecipes);
 
 export default recipesRouter;

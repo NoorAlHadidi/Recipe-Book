@@ -57,11 +57,13 @@ export const editRecipeSchema = z
     title: z
       .string("Recipe title must be a string.")
       .trim()
+      .min(1, "Recipe title cannot be empty.")
       .max(100, "Recipe title must be at most 100 characters long.")
       .optional(),
     description: z
       .string("Recipe description must be a string.")
       .trim()
+      .min(1, "Recipe description cannot be empty.")
       .max(500, "Recipe description must be at most 500 characters long.")
       .optional(),
     visibility: z
@@ -128,5 +130,21 @@ export const recipeParamSchema = z.object({
     .positive("Recipe ID must be a positive integer."),
 });
 
+export const recipeQueryParamsSchema = z.object({
+  page: z.coerce
+    .number("Page must be a number.")
+    .int("Page must be an integer.")
+    .positive("Page must be a positive integer."),
+  limit: z.coerce
+    .number("Limit must be a number.")
+    .int("Limit must be an integer.")
+    .positive("Limit must be a positive integer."),
+  title: z.string("Title must be a string.").trim().min(1, "Title field cannot be empty.").optional(),
+  creatorId: z.coerce.number("Creator ID must be a number.").int("Creator ID must be an integer.").positive("Creator ID must be a positive integer.").optional(),
+  categoryId: z.coerce.number("Category ID must be a number.").int("Category ID must be an integer.").positive("Category ID must be a positive integer.").optional(),
+  tagId: z.coerce.number("Tag ID must be a number.").int("Tag ID must be an integer.").positive("Tag ID must be a positive integer.").optional(),
+});
+
 export type AddRecipeDTO = z.infer<typeof addRecipeSchema>;
 export type EditRecipeDTO = z.infer<typeof editRecipeSchema>;
+export type RecipeQueryParamDTO = z.infer<typeof recipeQueryParamsSchema>;

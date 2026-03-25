@@ -4,6 +4,7 @@ import {
   addRecipeSchema,
   editRecipeSchema,
   recipeParamSchema,
+  recipeQueryParamsSchema,
   recipesService,
 } from "@/recipes";
 
@@ -39,6 +40,13 @@ class RecipesController {
     const userId = req.user!.sub;
     const recipe = await recipesService.getRecipe(userId, recipeId);
     res.status(200).json(recipe);
+  });
+
+  getRecipes = asyncErrorHandler(async (req: Request, res: Response) => {
+    const recipeQueryParams = recipeQueryParamsSchema.parse(req.query);
+    const userId = req.user!.sub;
+    const recipes = await recipesService.getRecipes(userId, recipeQueryParams);
+    res.status(200).json(recipes);
   });
 }
 
