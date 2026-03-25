@@ -1,7 +1,7 @@
 import { databaseClient, recipesTable, stepsTable } from "@/database";
 import { AppError } from "@/errors";
-import { checkRecipeExists, AddRecipeStepsDTO } from "@/recipes";
-import { eq, max } from "drizzle-orm";
+import { checkRecipeExists, AddRecipeStepsDTO, EditRecipeStepDTO } from "@/recipes";
+import { eq, max, and } from "drizzle-orm";
 
 class RecipeStepsService {
   async addSteps(
@@ -46,8 +46,60 @@ class RecipeStepsService {
       })
       .from(stepsTable)
       .where(eq(stepsTable.recipeId, recipeId))
+      .orderBy(stepsTable.stepNumber)
       .execute();
     return recipeSteps;
+  }
+
+  async editStep(userId: number, recipeId: number, stepNumber: number, stepDTO: EditRecipeStepDTO) {
+    const existingRecipe = await checkRecipeExists(recipeId);
+    if (existingRecipe.creatorId !== userId) {
+      throw new AppError(
+        "Requesting user is not authorised to edit this recipe.",
+        403,
+      );
+    }
+    const existingStep = await databaseClient.db
+      .select()
+      .from(stepsTable)
+      .where(
+        and(
+          eq(stepsTable.recipeId, recipeId),
+          eq(stepsTable.stepNumber, stepNumber),
+        ),
+      )
+      .execute();
+    if (existingStep.length === 0) {
+      throw new AppError("Step does not exist for this recipe.", 404);
+    }
+    const { instruction } = stepDTO;
+    await databaseClient.db
+      .update(stepsTable)
+      .set({
+        instruction,
+      })
+      .where(
+        and(
+          eq(stepsTable.recipeId, recipeId),
+          eq(stepsTable.stepNumber, stepNumber),
+        ),
+      )
+      .execute();
+    await databaseClient.db
+      .update(recipesTable)
+      .set({ updatedAt: new Date() })
+      .where(eq(recipesTable.recipeId, recipeId))
+      .execute();
+    const updatedRecipeSteps = await databaseClient.db
+      .select({
+        stepNumber: stepsTable.stepNumber,
+        stepInstruction: stepsTable.instruction,
+      })
+      .from(stepsTable)
+      .where(eq(stepsTable.recipeId, recipeId))
+      .orderBy(stepsTable.stepNumber)
+      .execute();
+    return updatedRecipeSteps;
   }
 }
 

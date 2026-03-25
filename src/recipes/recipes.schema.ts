@@ -142,11 +142,30 @@ export const addRecipeStepsSchema = z.object({
   ),
 });
 
+export const editRecipeStepSchema = z.object({
+  instruction: z
+    .string("Step instruction must be a string.")
+    .trim()
+    .min(1, "Step instruction cannot be empty.")
+    .max(500, "Step instruction must be at most 500 characters."),
+});
+
 export const recipeParamSchema = z.object({
   recipeId: z.coerce
     .number("Recipe ID must be a number.")
     .int("Recipe ID must be an integer.")
     .positive("Recipe ID must be a positive integer."),
+});
+
+export const recipeStepParamSchema = z.object({
+  recipeId: z.coerce
+    .number("Recipe ID must be a number.")
+    .int("Recipe ID must be an integer.")
+    .positive("Recipe ID must be a positive integer."),
+  stepNumber: z.coerce
+    .number("Step number must be a number.")
+    .int("Step number must be an integer.")
+    .positive("Step number must be a positive integer."),
 });
 
 export const recipeQueryParamsSchema = z.object({
@@ -183,4 +202,5 @@ export const recipeQueryParamsSchema = z.object({
 export type AddRecipeDTO = z.infer<typeof addRecipeSchema>;
 export type EditRecipeDTO = z.infer<typeof editRecipeSchema>;
 export type AddRecipeStepsDTO = z.infer<typeof addRecipeStepsSchema>;
+export type EditRecipeStepDTO = z.infer<typeof editRecipeStepSchema>;
 export type RecipeQueryParamDTO = z.infer<typeof recipeQueryParamsSchema>;

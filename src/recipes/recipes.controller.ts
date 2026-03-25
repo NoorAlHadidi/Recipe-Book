@@ -7,7 +7,9 @@ import {
   recipeParamSchema,
   recipeQueryParamsSchema,
   recipesService,
-  recipeStepsService
+  recipeStepsService,
+  editRecipeStepSchema,
+  recipeStepParamSchema,
 } from "@/recipes";
 
 class RecipesController {
@@ -55,8 +57,25 @@ class RecipesController {
     const { recipeId } = recipeParamSchema.parse(req.params);
     const userId = req.user!.sub;
     const addRecipeStepsDTO = addRecipeStepsSchema.parse(req.body);
-    const recipeSteps = await recipeStepsService.addSteps(userId, recipeId, addRecipeStepsDTO);
+    const recipeSteps = await recipeStepsService.addSteps(
+      userId,
+      recipeId,
+      addRecipeStepsDTO,
+    );
     res.status(201).json(recipeSteps);
+  });
+
+  editRecipeStep = asyncErrorHandler(async (req: Request, res: Response) => {
+    const { recipeId, stepNumber } = recipeStepParamSchema.parse(req.params);
+    const userId = req.user!.sub;
+    const editRecipeStepDTO = editRecipeStepSchema.parse(req.body);
+    const recipeSteps = await recipeStepsService.editStep(
+      userId,
+      recipeId,
+      stepNumber,
+      editRecipeStepDTO,
+    );
+    res.status(200).json(recipeSteps);
   });
 }
 

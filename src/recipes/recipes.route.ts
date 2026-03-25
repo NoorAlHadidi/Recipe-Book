@@ -691,4 +691,108 @@ recipesRouter.get("/", authenticateToken, recipesController.getRecipes);
  */
 recipesRouter.post("/:recipeId/steps", authenticateToken, recipesController.addRecipeSteps);
 
+/**
+ * @swagger
+ * /recipes/{recipeId}/steps/{stepNumber}:
+ *   post:
+ *     summary: Endpoint for editting a step instruction for a recipe
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: stepNumber
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               instruction:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Step editted added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               properties:
+ *                 stepNumber:
+ *                   type: number
+ *                 stepInstruction:
+ *                   type: string
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Authenticated user is not the recipe creator (Not allowed to edit steps)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Recipe with specified ID is not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+recipesRouter.post("/:recipeId/steps/:stepNumber", authenticateToken, recipesController.editRecipeStep);
+
 export default recipesRouter;
