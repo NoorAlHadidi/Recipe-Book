@@ -250,23 +250,6 @@ recipesRouter.delete(
  *                 type: array
  *                 items:
  *                   type: string
- *               ingredients:
- *                 type: array
- *                 items:
- *                   type: object
- *                   required:
- *                      - ingredientId
- *                      - quantity
- *                      - unitId
- *                   properties:
- *                      ingredientId:
- *                          type: number
- *                      quantity:
- *                          type: number
- *                      unitId:
- *                          type: number
- *                      notes:
- *                          type: string
  *     responses:
  *       200:
  *         description: Recipe updated successfully
@@ -982,5 +965,142 @@ recipesRouter.delete(
  *                   type: string
  */
 recipesRouter.get("/:recipeId/steps", authenticateToken, recipesController.getRecipeSteps);
+
+/**
+ * @swagger
+ * /recipes/{recipeId}/ingredients:
+ *   post:
+ *     summary: Endpoint for adding new ingredients to a recipe
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: number
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - ingredients
+ *             properties:
+ *               ingredients:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - ingredientId
+ *                     - quantity
+ *                     - unitId
+ *                   properties:
+ *                     ingredientId:
+ *                       type: number
+ *                     quantity:
+ *                       type: number
+ *                     unitId:
+ *                       type: number
+ *                     notes:
+ *                       type: string
+ *                       nullable: true
+ *     responses:
+ *       201:
+ *         description: New ingredients added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               properties:
+ *                 ingredientId:
+ *                   type: number
+ *                 quantity:
+ *                   type: number
+ *                 unitId:
+ *                   type: number
+ *                 notes:
+ *                   type: string
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Authenticated user is not the recipe creator (Not allowed to add ingredients)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Resource (recipe / ingredient / unit) not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       409:
+ *         description: Ingredient already exists for recipe
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+recipesRouter.post(
+  "/:recipeId/ingredients",
+  authenticateToken,
+  recipesController.addRecipeIngredients,
+);
 
 export default recipesRouter;

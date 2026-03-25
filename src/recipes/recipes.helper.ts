@@ -12,7 +12,10 @@ import {
 import { AppError } from "@/errors";
 import { eq, and } from "drizzle-orm";
 
-export async function checkRecipeExists(recipeId: number, db: any = databaseClient.db) {
+export async function checkRecipeExists(
+  recipeId: number,
+  db: any = databaseClient.db,
+) {
   const existingRecipe = await databaseClient.db
     .select()
     .from(recipesTable)
@@ -68,7 +71,7 @@ export const checkRecipeTags = async (
   }
 };
 
-export const checkRecipeIngredients = async (
+export const addRecipeIngredients = async (
   recipeId: number,
   ingredients: {
     ingredientId: number;
@@ -101,22 +104,6 @@ export const checkRecipeIngredients = async (
       throw new AppError(`Unit with ID ${unitId} does not exist.`, 404);
     }
 
-    const existingIngredientUnit = await db
-      .select()
-      .from(ingredientsUnitsTable)
-      .where(
-        and(
-          eq(ingredientsUnitsTable.ingredientId, ingredientId),
-          eq(ingredientsUnitsTable.unitId, unitId),
-        ),
-      )
-      .execute();
-    if (existingIngredientUnit.length === 0) {
-      throw new AppError(
-        `Unit with ID ${unitId} is not valid for ingredient with ID ${ingredientId}.`,
-        400,
-      );
-    }
     const existingRecipeIngredient = await db
       .select()
       .from(recipesIngredientsTable)
@@ -131,6 +118,23 @@ export const checkRecipeIngredients = async (
       throw new AppError(
         `Ingredient with ID ${ingredientId} already exists in this recipe.`,
         409,
+      );
+    }
+
+    const existingIngredientUnit = await db
+      .select()
+      .from(ingredientsUnitsTable)
+      .where(
+        and(
+          eq(ingredientsUnitsTable.ingredientId, ingredientId),
+          eq(ingredientsUnitsTable.unitId, unitId),
+        ),
+      )
+      .execute();
+    if (existingIngredientUnit.length === 0) {
+      throw new AppError(
+        `Unit with ID ${unitId} is not valid for ingredient with ID ${ingredientId}.`,
+        400,
       );
     }
     await db

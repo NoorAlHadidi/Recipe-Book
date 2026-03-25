@@ -10,7 +10,7 @@ import {
   EditRecipeDTO,
   RecipeQueryParamDTO,
   checkRecipeExists,
-  checkRecipeIngredients,
+  addRecipeIngredients,
   checkRecipeTags,
 } from "@/recipes";
 import { AppError } from "@/errors";
@@ -60,7 +60,7 @@ class RecipesService {
         await checkRecipeTags(newRecipeId, tagNames, tx);
       }
       if (ingredients) {
-        await checkRecipeIngredients(newRecipeId, ingredients, tx);
+        await addRecipeIngredients(newRecipeId, ingredients, tx);
       }
       if (steps) {
         for (let i = 0; i < steps.length; i++) {
@@ -110,11 +110,10 @@ class RecipesService {
         description,
         visibility,
         categoryId,
-        tagNames,
-        ingredients,
+        tagNames
       } = editRecipeDTO;
       const updateValues: any = {};
-      if (categoryId !== undefined) {
+      if (categoryId) {
         updateValues.categoryId = categoryId;
         const existingCategory = await tx
           .select()
@@ -126,21 +125,19 @@ class RecipesService {
           throw new AppError("No category with the specified ID exists.", 404);
         }
       }
-      if (title !== undefined) {
+      if (title) {
         updateValues.title = title;
       }
-      if (description !== undefined) {
+      if (description) {
         updateValues.description = description;
       }
-      if (visibility !== undefined) {
+      if (visibility) {
         updateValues.visibility = visibility;
       }
-      if (tagNames !== undefined) {
+      if (tagNames) {
         await checkRecipeTags(recipeId, tagNames, tx);
       }
-      if (ingredients !== undefined) {
-        await checkRecipeIngredients(recipeId, ingredients, tx);
-      }
+      
       updateValues.updatedAt = new Date();
 
       const updatedRecipe = await tx
@@ -181,16 +178,16 @@ class RecipesService {
       ),
     );
 
-    if (title !== undefined) {
+    if (title) {
       filterConditions.push(ilike(recipesTable.title, `%${title}%`));
     }
-    if (creatorId !== undefined) {
+    if (creatorId) {
       filterConditions.push(eq(recipesTable.creatorId, creatorId));
     }
-    if (categoryId !== undefined) {
+    if (categoryId) {
       filterConditions.push(eq(recipesTable.categoryId, categoryId));
     }
-    if (tagId !== undefined) {
+    if (tagId) {
       filterConditions.push(eq(recipesTagsTable.tagId, tagId));
       recipesQuery = await databaseClient.db
         .select({

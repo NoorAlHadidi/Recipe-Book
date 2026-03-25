@@ -97,27 +97,6 @@ export const editRecipeSchema = z
       )
       .transform((tagNames) => [...new Set(tagNames)])
       .optional(),
-    ingredients: z
-      .array(
-        z.object({
-          ingredientId: z.coerce
-            .number("Ingredient ID must be a number.")
-            .int("Ingredient ID must be an integer.")
-            .positive("Ingredient ID must be a positive integer."),
-          quantity: z.coerce
-            .number("Quantity must be a number.")
-            .positive("Quantity must be a positive number."),
-          unitId: z.coerce
-            .number("Unit ID must be a number.")
-            .int("Unit ID must be an integer.")
-            .positive("Unit ID must be a positive integer."),
-          notes: z
-            .string("Notes must be a string.")
-            .max(500, "Notes must be at most 500 characters long.")
-            .optional(),
-        }),
-      )
-      .optional(),
   })
   .refine(
     (body) =>
@@ -125,8 +104,7 @@ export const editRecipeSchema = z
       body.description !== undefined ||
       body.visibility !== undefined ||
       body.categoryId !== undefined ||
-      body.tagNames !== undefined ||
-      body.ingredients !== undefined,
+      body.tagNames !== undefined,
     {
       message: "At least one field must be provided.",
     },
@@ -199,8 +177,34 @@ export const recipeQueryParamsSchema = z.object({
     .optional(),
 });
 
+export const addRecipeIngredientsSchema = z.object({
+  ingredients: z.array(
+    z.object({
+      ingredientId: z.coerce
+        .number("Ingredient ID must be a number.")
+        .int("Ingredient ID must be an integer.")
+        .positive("Ingredient ID must be a positive integer."),
+      quantity: z.coerce
+        .number("Quantity must be a number.")
+        .positive("Quantity must be a positive number."),
+      unitId: z.coerce
+        .number("Unit ID must be a number.")
+        .int("Unit ID must be an integer.")
+        .positive("Unit ID must be a positive integer."),
+      notes: z
+        .string("Notes must be a string.")
+        .trim()
+        .max(500, "Notes must be at most 500 characters.")
+        .optional(),
+    }),
+  ),
+});
+
 export type AddRecipeDTO = z.infer<typeof addRecipeSchema>;
 export type EditRecipeDTO = z.infer<typeof editRecipeSchema>;
 export type AddRecipeStepsDTO = z.infer<typeof addRecipeStepsSchema>;
 export type EditRecipeStepDTO = z.infer<typeof editRecipeStepSchema>;
 export type RecipeQueryParamDTO = z.infer<typeof recipeQueryParamsSchema>;
+export type AddRecipeIngredientsDTO = z.infer<
+  typeof addRecipeIngredientsSchema
+>;
