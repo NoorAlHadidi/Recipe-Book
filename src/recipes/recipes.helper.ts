@@ -6,6 +6,7 @@ import {
   unitsTable,
   ingredientsUnitsTable,
   recipesIngredientsTable,
+  stepsTable,
 } from "@/database";
 import { AppError } from "@/errors";
 import { eq, and } from "drizzle-orm";
@@ -128,6 +129,19 @@ export const checkRecipeIngredients = async (
         quantity,
         notes,
       })
+      .execute();
+  }
+};
+
+export const addRecipeSteps = async (
+  recipeId: number,
+  steps: string[],
+  tx: any,
+) => {
+  for (let i = 0; i < steps.length; i++) {
+    await tx
+      .insert(stepsTable)
+      .values({ stepNumber: i + 1, recipeId: recipeId, instruction: steps[i] })
       .execute();
   }
 };

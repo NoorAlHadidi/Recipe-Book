@@ -3,6 +3,7 @@ import {
   recipesTable,
   categoriesTable,
   recipesTagsTable,
+  stepsTable,
 } from "@/database";
 import {
   AddRecipeDTO,
@@ -23,6 +24,7 @@ class RecipesService {
       categoryId,
       tagNames,
       ingredients,
+      steps,
     } = addRecipeDTO;
     await databaseClient.db.transaction(async (tx) => {
       const existingCategory = await tx
@@ -52,11 +54,24 @@ class RecipesService {
           createdAt: recipesTable.createdAt,
         })
         .execute();
-      if (tagNames !== undefined) {
-        await checkRecipeTags(newRecipe[0].recipeId, tagNames, tx);
+      const newRecipeId = newRecipe[0].recipeId;
+      if (tagNames) {
+        await checkRecipeTags(newRecipeId, tagNames, tx);
       }
-      if (ingredients !== undefined) {
-        await checkRecipeIngredients(newRecipe[0].recipeId, ingredients, tx);
+      if (ingredients) {
+        await checkRecipeIngredients(newRecipeId, ingredients, tx);
+      }
+      if (steps) {
+        for (let i = 0; i < steps.length; i++) {
+          await tx
+            .insert(stepsTable)
+            .values({
+              stepNumber: i + 1,
+              recipeId: newRecipeId,
+              instruction: steps[i],
+            })
+            .execute();
+        }
       }
       return newRecipe[0];
     });
@@ -241,7 +256,7 @@ class RecipesService {
       page,
       limit,
       total: recipesQuery.length > 0 ? recipesQuery[0].total : 0,
-      recipes: recipesQuery.map(({ total, ...recipe }) => recipe)
+      recipes: recipesQuery.map(({ total, ...recipe }) => recipe),
     };
   }
 }

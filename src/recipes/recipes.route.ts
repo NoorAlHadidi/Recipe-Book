@@ -51,6 +51,10 @@ export const recipesRouter = Router();
  *                          type: number
  *                      notes:
  *                          type: string
+ *               steps:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       201:
  *         description: New recipe created successfully
@@ -522,7 +526,7 @@ recipesRouter.get("/:recipeId", authenticateToken, recipesController.getRecipe);
  *                   type: array
  *                   items:
  *                      type: object
- *                      properties: 
+ *                      properties:
  *                        recipeId:
  *                          type: number
  *                        title:
