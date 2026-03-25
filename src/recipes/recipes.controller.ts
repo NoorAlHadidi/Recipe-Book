@@ -84,6 +84,13 @@ class RecipesController {
     await recipeStepsService.deleteStep(userId, recipeId, stepNumber);
     res.status(204).send();
   });
+
+  getRecipeSteps = asyncErrorHandler(async (req: Request, res: Response) => {
+   const { recipeId } = recipeParamSchema.parse(req.params);
+    const userId = req.user!.sub;
+    const steps = await recipeStepsService.getSteps(userId, recipeId);
+    res.status(200).json(steps);
+  });
 }
 
 export const recipesController = new RecipesController();

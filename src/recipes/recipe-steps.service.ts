@@ -159,6 +159,28 @@ class RecipeStepsService {
         .execute();
     });
   }
+
+  async getSteps(userId: number, recipeId: number) {
+    const existingRecipe = await checkRecipeExists(recipeId);
+    if (
+      existingRecipe.creatorId !== userId &&
+      existingRecipe.visibility === "private"
+    ) {
+      throw new AppError(
+        "Requesting user is not authorised to view this recipe's details.",
+        403,
+      );
+    }
+    return databaseClient.db
+      .select({
+        stepNumber: stepsTable.stepNumber,
+        stepInstruction: stepsTable.instruction,
+      })
+      .from(stepsTable)
+      .where(eq(stepsTable.recipeId, recipeId))
+      .orderBy(stepsTable.stepNumber)
+      .execute();
+  }
 }
 
 export const recipeStepsService = new RecipeStepsService();
