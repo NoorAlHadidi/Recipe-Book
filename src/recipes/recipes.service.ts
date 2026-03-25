@@ -9,6 +9,7 @@ import {
   AddRecipeDTO,
   EditRecipeDTO,
   RecipeQueryParamDTO,
+  checkRecipeExists,
   checkRecipeIngredients,
   checkRecipeTags,
 } from "@/recipes";
@@ -78,15 +79,8 @@ class RecipesService {
   }
 
   async deleteRecipe(userId: number, recipeId: number) {
-    const existingRecipe = await databaseClient.db
-      .select({ creatorId: recipesTable.creatorId })
-      .from(recipesTable)
-      .where(eq(recipesTable.recipeId, recipeId))
-      .execute();
-    if (existingRecipe.length === 0) {
-      throw new AppError("No recipe with the specified ID exists.", 404);
-    }
-    if (existingRecipe[0].creatorId !== userId) {
+    const existingRecipe = await checkRecipeExists(recipeId);
+    if (existingRecipe.creatorId !== userId) {
       throw new AppError(
         "Requesting user is not authorised to delete this recipe.",
         403,
@@ -104,15 +98,8 @@ class RecipesService {
     editRecipeDTO: EditRecipeDTO,
   ) {
     await databaseClient.db.transaction(async (tx) => {
-      const existingRecipe = await tx
-        .select({ creatorId: recipesTable.creatorId })
-        .from(recipesTable)
-        .where(eq(recipesTable.recipeId, recipeId))
-        .execute();
-      if (existingRecipe.length === 0) {
-        throw new AppError("No recipe with the specified ID exists.", 404);
-      }
-      if (existingRecipe[0].creatorId !== userId) {
+      const existingRecipe = await checkRecipeExists(recipeId, tx);
+      if (existingRecipe.creatorId !== userId) {
         throw new AppError(
           "Requesting user is not authorised to delete this recipe.",
           403,
@@ -168,24 +155,17 @@ class RecipesService {
   }
 
   async getRecipe(userId: number, recipeId: number) {
-    const existingRecipe = await databaseClient.db
-      .select()
-      .from(recipesTable)
-      .where(eq(recipesTable.recipeId, recipeId))
-      .execute();
-    if (existingRecipe.length === 0) {
-      throw new AppError("No recipe with the specified ID exists.", 404);
-    }
+    const existingRecipe = await checkRecipeExists(recipeId);
     if (
-      existingRecipe[0].creatorId !== userId &&
-      existingRecipe[0].visibility === "private"
+      existingRecipe.creatorId !== userId &&
+      existingRecipe.visibility === "private"
     ) {
       throw new AppError(
         "Requesting user is not authorised to view this recipe.",
         403,
       );
     }
-    return existingRecipe[0];
+    return existingRecipe;
   }
 
   async getRecipes(userId: number, recipeQueryParams: RecipeQueryParamDTO) {

@@ -1,5 +1,6 @@
 import {
   databaseClient,
+  recipesTable,
   tagsTable,
   recipesTagsTable,
   ingredientsTable,
@@ -11,13 +12,25 @@ import {
 import { AppError } from "@/errors";
 import { eq, and } from "drizzle-orm";
 
+export async function checkRecipeExists(recipeId: number, db: any = databaseClient.db) {
+  const existingRecipe = await databaseClient.db
+    .select()
+    .from(recipesTable)
+    .where(eq(recipesTable.recipeId, recipeId))
+    .execute();
+  if (existingRecipe.length === 0) {
+    throw new AppError("No recipe with the specified ID exists.", 404);
+  }
+  return existingRecipe[0];
+}
+
 export const checkRecipeTags = async (
   recipeId: number,
   tagNames: string[],
-  tx: any,
+  db: any = databaseClient.db,
 ) => {
   for (const tagName of tagNames) {
-    const existingTag = await tx
+    const existingTag = await db
       .select({ tagId: tagsTable.tagId })
       .from(tagsTable)
       .where(eq(tagsTable.name, tagName))
@@ -27,13 +40,13 @@ export const checkRecipeTags = async (
       existingTag.length > 0
         ? existingTag[0].tagId
         : (
-            await tx
+            await db
               .insert(tagsTable)
               .values({ name: tagName })
               .returning({ tagId: tagsTable.tagId })
               .execute()
           )[0].tagId;
-    const existingRecipeTag = await tx
+    const existingRecipeTag = await db
       .select()
       .from(recipesTagsTable)
       .where(
@@ -44,7 +57,7 @@ export const checkRecipeTags = async (
       )
       .execute();
     if (existingRecipeTag.length === 0) {
-      await tx
+      await db
         .insert(recipesTagsTable)
         .values({
           recipeId,
@@ -63,11 +76,11 @@ export const checkRecipeIngredients = async (
     unitId: number;
     notes?: string;
   }[],
-  tx: any,
+  db: any = databaseClient.db,
 ) => {
   for (const ingredient of ingredients) {
     const { ingredientId, quantity, unitId, notes } = ingredient;
-    const existingIngredient = await tx
+    const existingIngredient = await db
       .select({ ingredientId: ingredientsTable.ingredientId })
       .from(ingredientsTable)
       .where(eq(ingredientsTable.ingredientId, ingredientId))
@@ -79,7 +92,7 @@ export const checkRecipeIngredients = async (
       );
     }
 
-    const existingUnit = await tx
+    const existingUnit = await db
       .select({ unitId: unitsTable.unitId })
       .from(unitsTable)
       .where(eq(unitsTable.unitId, unitId))
@@ -88,7 +101,7 @@ export const checkRecipeIngredients = async (
       throw new AppError(`Unit with ID ${unitId} does not exist.`, 404);
     }
 
-    const existingIngredientUnit = await tx
+    const existingIngredientUnit = await db
       .select()
       .from(ingredientsUnitsTable)
       .where(
@@ -104,7 +117,7 @@ export const checkRecipeIngredients = async (
         400,
       );
     }
-    const existingRecipeIngredient = await tx
+    const existingRecipeIngredient = await db
       .select()
       .from(recipesIngredientsTable)
       .where(
@@ -120,7 +133,7 @@ export const checkRecipeIngredients = async (
         409,
       );
     }
-    await tx
+    await db
       .insert(recipesIngredientsTable)
       .values({
         recipeId,
@@ -129,19 +142,6 @@ export const checkRecipeIngredients = async (
         quantity,
         notes,
       })
-      .execute();
-  }
-};
-
-export const addRecipeSteps = async (
-  recipeId: number,
-  steps: string[],
-  tx: any,
-) => {
-  for (let i = 0; i < steps.length; i++) {
-    await tx
-      .insert(stepsTable)
-      .values({ stepNumber: i + 1, recipeId: recipeId, instruction: steps[i] })
       .execute();
   }
 };
