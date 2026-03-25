@@ -3,9 +3,11 @@ import { asyncErrorHandler } from "@/errors";
 import {
   addRecipeSchema,
   editRecipeSchema,
+  addRecipeStepsSchema,
   recipeParamSchema,
   recipeQueryParamsSchema,
   recipesService,
+  recipeStepsService
 } from "@/recipes";
 
 class RecipesController {
@@ -47,6 +49,14 @@ class RecipesController {
     const userId = req.user!.sub;
     const recipes = await recipesService.getRecipes(userId, recipeQueryParams);
     res.status(200).json(recipes);
+  });
+
+  addRecipeSteps = asyncErrorHandler(async (req: Request, res: Response) => {
+    const { recipeId } = recipeParamSchema.parse(req.params);
+    const userId = req.user!.sub;
+    const addRecipeStepsDTO = addRecipeStepsSchema.parse(req.body);
+    const recipeSteps = await recipeStepsService.addSteps(userId, recipeId, addRecipeStepsDTO);
+    res.status(201).json(recipeSteps);
   });
 }
 
