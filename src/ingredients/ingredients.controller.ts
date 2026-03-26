@@ -7,6 +7,7 @@ import {
   ingredientParamSchema,
   ingredientUnitParamSchema,
   ingredientsService,
+  ingredientQueryParamsSchema,
 } from "@/ingredients";
 
 class IngredientsController {
@@ -40,7 +41,10 @@ class IngredientsController {
   });
 
   getIngredients = asyncErrorHandler(async (req: Request, res: Response) => {
-    const ingredients = await ingredientsService.getIngredients();
+    const ingredientQueryParams = ingredientQueryParamsSchema.parse(req.query);
+    const ingredients = await ingredientsService.getIngredients(
+      ingredientQueryParams,
+    );
     res.status(200).json(ingredients);
   });
 

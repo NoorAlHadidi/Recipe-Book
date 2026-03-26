@@ -206,7 +206,7 @@ describe("IngredientsService", () => {
         }),
       });
 
-      const result = await ingredientsService.getIngredients();
+      const result = await ingredientsService.getIngredients({});
 
       expect(result).toEqual(mockIngredients);
     });
