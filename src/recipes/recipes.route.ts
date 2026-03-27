@@ -1320,4 +1320,94 @@ recipesRouter.patch(
  */
 recipesRouter.get("/:recipeId/ingredients", authenticateToken, recipesController.getRecipeIngredients);
 
+/**
+ * @swagger
+ * /recipes/{recipeId}/ingredients/{ingredientId}:
+ *   delete:
+ *     summary: Endpoint for deleting an ingredient in a recipe
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: ingredientId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: Ingredient deleted successfully
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Authenticated user is not the recipe creator (Not allowed to delete ingredients)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Recipe with specified ID is not found / Ingredient is not found in specified recipe
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+recipesRouter.delete(
+  "/:recipeId/ingredients/:ingredientId",
+  authenticateToken,
+  recipesController.deleteRecipeIngredient,
+);
+
 export default recipesRouter;

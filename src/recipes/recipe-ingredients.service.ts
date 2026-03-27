@@ -138,6 +138,48 @@ class RecipeIngredientsService {
       .execute();
   }
 
+  async deleteIngredient(
+    userId: number,
+    recipeId: number,
+    ingredientId: number,
+  ) {
+    const existingRecipe = await checkRecipeExists(recipeId);
+    if (existingRecipe.creatorId !== userId) {
+      throw new AppError(
+        "Requesting user is not authorised to edit this recipe.",
+        403,
+      );
+    }
+
+    await checkIngredientExists(ingredientId);
+
+    const existingRecipeIng = await databaseClient.db
+      .select()
+      .from(recipesIngredientsTable)
+      .where(
+        and(
+          eq(recipesIngredientsTable.recipeId, recipeId),
+          eq(recipesIngredientsTable.ingredientId, ingredientId),
+        ),
+      )
+      .execute();
+    if (existingRecipeIng.length === 0) {
+      throw new AppError(
+        "Ingredient is not included in the specified recipe.",
+        404,
+      );
+    }
+    await databaseClient.db
+      .delete(recipesIngredientsTable)
+      .where(
+        and(
+          eq(recipesIngredientsTable.recipeId, recipeId),
+          eq(recipesIngredientsTable.ingredientId, ingredientId),
+        ),
+      )
+      .execute();
+  }
+
   async getIngredients(userId: number, recipeId: number) {
     const existingRecipe = await checkRecipeExists(recipeId);
     if (

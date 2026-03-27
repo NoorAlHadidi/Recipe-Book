@@ -131,6 +131,13 @@ class RecipesController {
     const ingredients = await recipeIngredientsService.getIngredients(userId, recipeId);
     res.status(200).json(ingredients);
   });
+
+  deleteRecipeIngredient = asyncErrorHandler(async (req: Request, res: Response) => {
+    const { recipeId, ingredientId } = recipeIngParamSchema.parse(req.params);
+    const userId = req.user!.sub;
+    await recipeIngredientsService.deleteIngredient(userId, recipeId, ingredientId);
+    res.status(204).send();
+  });
 }
 
 export const recipesController = new RecipesController();
