@@ -4,6 +4,7 @@ import {
   checkRecipeExists,
   AddRecipeStepsDTO,
   EditRecipeStepDTO,
+  logRecipeChange,
 } from "@/recipes";
 import { eq, max, and, gt, sql } from "drizzle-orm";
 
@@ -36,6 +37,14 @@ class RecipeStepsService {
           instruction,
         })
         .execute();
+      await logRecipeChange(
+        recipeId,
+        "add",
+        "step",
+        nextStep,
+        null,
+        instruction,
+      );
       nextStep++;
     }
     await databaseClient.db
@@ -99,6 +108,14 @@ class RecipeStepsService {
       .set({ updatedAt: new Date() })
       .where(eq(recipesTable.recipeId, recipeId))
       .execute();
+    await logRecipeChange(
+      recipeId,
+      "edit",
+      "step",
+      stepNumber,
+      existingStep[0].instruction,
+      instruction,
+    );
     const updatedRecipeSteps = await databaseClient.db
       .select({
         stepNumber: stepsTable.stepNumber,
@@ -157,6 +174,15 @@ class RecipeStepsService {
         .set({ updatedAt: new Date() })
         .where(eq(recipesTable.recipeId, recipeId))
         .execute();
+      await logRecipeChange(
+        recipeId,
+        "delete",
+        "step",
+        stepNumber,
+        String(stepNumber),
+        null,
+        tx,
+      );
     });
   }
 

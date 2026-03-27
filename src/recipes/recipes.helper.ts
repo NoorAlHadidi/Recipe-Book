@@ -70,6 +70,14 @@ export const addRecipeTags = async (
         })
         .execute();
     }
+    await logRecipeChange(
+      recipeId,
+      "add",
+      "tag",
+      tagId,
+      null,
+      String(tagId),
+    );
   }
 };
 
@@ -149,6 +157,14 @@ export const addRecipeIngredients = async (
         notes,
       })
       .execute();
+    await logRecipeChange(
+      recipeId,
+      "add",
+      "ingredient",
+      ingredientId,
+      null,
+      String(ingredientId),
+    );
   }
 };
 

@@ -12,6 +12,7 @@ import {
   addRecipeIngredients,
   AddRecipeIngsDTO,
   EditRecipeIngDTO,
+  logRecipeChange,
 } from "@/recipes";
 import { checkIngredientExists } from "@/ingredients";
 import { eq, and } from "drizzle-orm";
@@ -183,6 +184,14 @@ class RecipeIngredientsService {
       .set({ updatedAt: new Date() })
       .where(eq(recipesTable.recipeId, recipeId))
       .execute();
+    await logRecipeChange(
+      recipeId,
+      "delete",
+      "ingredient",
+      ingredientId,
+      String(ingredientId),
+      null,
+    );
   }
 
   async getIngredients(userId: number, recipeId: number) {
