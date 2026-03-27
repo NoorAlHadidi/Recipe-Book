@@ -92,6 +92,13 @@
       "when": 1774381563130,
       "tag": "0012_chief_black_panther",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1774578224294,
+      "tag": "0013_graceful_the_anarchist",
+      "breakpoints": true
     }
   ]
 }

@@ -12,8 +12,7 @@ import {
   RecipeQueryParamDTO,
   checkRecipeExists,
   addRecipeIngredients,
-  checkRecipeTags,
-  recipeIngredientsService,
+  checkRecipeTags
 } from "@/recipes";
 import { AppError } from "@/errors";
 import { eq, or, and, ilike, sql } from "drizzle-orm";

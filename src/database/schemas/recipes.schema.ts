@@ -96,3 +96,32 @@ export const recipesTagsTable = pgTable(
     }),
   ],
 );
+
+export const recipeActionEnum = pgEnum("recipe_action", [
+  "add",
+  "edit",
+  "delete",
+]);
+
+export const recipeFieldEnum = pgEnum("recipe_field", [
+  "title",
+  "description",
+  "visibility",
+  "category",
+  "tag",
+  "step",
+  "ingredient",
+]);
+
+export const recipeChangeLogsTable = pgTable("recipe_change_logs", {
+  logId: serial("log_id").primaryKey(),
+  recipeId: integer("recipe_id")
+    .notNull()
+    .references(() => recipesTable.recipeId, { onDelete: "cascade" }),
+  action: recipeActionEnum("action").notNull(),
+  field: recipeFieldEnum("field").notNull(),
+  fieldId: integer("field_id"),
+  from: varchar("from", { length: 500 }),
+  to: varchar("to", { length: 500 }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
