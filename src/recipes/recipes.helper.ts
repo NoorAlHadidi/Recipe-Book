@@ -29,7 +29,7 @@ export async function checkRecipeExists(
   return existingRecipe[0];
 }
 
-export const checkRecipeTags = async (
+export const addRecipeTags = async (
   recipeId: number,
   tagNames: string[],
   db: any = databaseClient.db,
@@ -151,3 +151,28 @@ export const addRecipeIngredients = async (
       .execute();
   }
 };
+
+type RecipeAction = (typeof recipeActionEnum.enumValues)[number];
+type RecipeField = (typeof recipeFieldEnum.enumValues)[number];
+
+export async function logRecipeChange(
+  recipeId: number,
+  action: RecipeAction,
+  field: RecipeField,
+  fieldId?: number,
+  from?: string | null,
+  to?: string | null,
+  db: any = databaseClient.db,
+) {
+  await db
+    .insert(recipeChangeLogsTable)
+    .values({
+      recipeId,
+      action,
+      field,
+      fieldId,
+      from,
+      to,
+    })
+    .execute();
+}

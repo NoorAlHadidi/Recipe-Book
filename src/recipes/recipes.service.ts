@@ -12,7 +12,8 @@ import {
   RecipeQueryParamDTO,
   checkRecipeExists,
   addRecipeIngredients,
-  checkRecipeTags
+  addRecipeTags,
+  logRecipeChange,
 } from "@/recipes";
 import { AppError } from "@/errors";
 import { eq, or, and, ilike, sql } from "drizzle-orm";
@@ -58,7 +59,7 @@ class RecipesService {
         .execute();
       const newRecipeId = newRecipe[0].recipeId;
       if (tagNames) {
-        await checkRecipeTags(newRecipeId, tagNames, tx);
+        await addRecipeTags(newRecipeId, tagNames, tx);
       }
       if (ingredients) {
         await addRecipeIngredients(newRecipeId, ingredients, tx);
@@ -120,18 +121,55 @@ class RecipesService {
         if (existingCategory.length === 0) {
           throw new AppError("No category with the specified ID exists.", 404);
         }
+
+        await logRecipeChange(
+          recipeId,
+          "edit",
+          "category",
+          existingRecipe.categoryId,
+          String(existingRecipe.categoryId),
+          String(categoryId),
+          tx,
+        );
       }
       if (title) {
         updateValues.title = title;
+        await logRecipeChange(
+          recipeId,
+          "edit",
+          "title",
+          undefined,
+          existingRecipe.title,
+          title,
+          tx,
+        );
       }
       if (description) {
         updateValues.description = description;
+        await logRecipeChange(
+          recipeId,
+          "edit",
+          "description",
+          undefined,
+          existingRecipe.description,
+          description,
+          tx,
+        );
       }
       if (visibility) {
         updateValues.visibility = visibility;
+        await logRecipeChange(
+          recipeId,
+          "edit",
+          "visibility",
+          undefined,
+          existingRecipe.visibility,
+          visibility,
+          tx,
+        );
       }
       if (tagNames) {
-        await checkRecipeTags(recipeId, tagNames, tx);
+        await addRecipeTags(recipeId, tagNames, tx);
       }
 
       updateValues.updatedAt = new Date();
