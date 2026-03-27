@@ -1,6 +1,7 @@
 {
   "ts-node": {
     "require": ["tsconfig-paths/register"],
+    "files": true
   },
   "compilerOptions": {
     "target": "ES2020", // JS version to compile to
@@ -23,10 +24,11 @@
     "esModuleInterop": true, // allows default imports from CommonJS modules
     "forceConsistentCasingInFileNames": true, // ensures consistent casing in file names
     "strict": true, // enables all strict type-checking options
-    "skipLibCheck": true // skip type checking in node_modules
+    "skipLibCheck": true, // skip type checking in node_modules
   },
   "include": [ // only compile TS files in src and lib directories
     "src/**/*.ts",
+    "src/**/*.d.ts",
     "lib/**/*.ts",
   ],
   "exclude": [ // exclude node_modules from compilation

@@ -10,9 +10,10 @@ import {
   EditIngredientDTO,
   AddIngredientUnitDTO,
   checkIngredientExists,
+  IngredientQueryParamDTO,
 } from "@/ingredients";
 import { checkUnitExists } from "@/units";
-import { eq, ne, and } from "drizzle-orm";
+import { eq, ne, and, ilike, sql } from "drizzle-orm";
 
 class IngredientsService {
   async addIngredient(addIngredientDTO: AddIngredientDTO) {
@@ -84,12 +85,39 @@ class IngredientsService {
     return await checkIngredientExists(ingredientId);
   }
 
-  async getIngredients() {
-    const ingredients = await databaseClient.db
-      .select()
-      .from(ingredientsTable)
-      .execute();
-    return ingredients;
+  async getIngredients(ingredientQueryParams: IngredientQueryParamDTO) {
+    const { page, limit, name } = ingredientQueryParams;
+    const filterConditions = [];
+    if (name) {
+      filterConditions.push(ilike(ingredientsTable.name, `%${name}%`));
+    }
+    const ingredientsQuery = databaseClient.db
+      .select({
+        ingredientId: ingredientsTable.ingredientId,
+        name: ingredientsTable.name,
+        total: sql`count(*) over()`.mapWith(Number),
+      })
+      .from(ingredientsTable);
+
+    if (filterConditions.length > 0) {
+      ingredientsQuery.where(and(...filterConditions));
+    }
+
+    if (page && limit) {
+      const offset = (page - 1) * limit;
+      ingredientsQuery.limit(limit).offset(offset);
+    }
+
+    const ingredients = await ingredientsQuery.execute();
+
+    const total = ingredients.length > 0 ? ingredients[0].total : 0;
+
+    return {
+      page: page ? page : 1,
+      limit: limit ? limit : total,
+      total,
+      data: ingredients.map(({ total, ...ingredient }) => ingredient),
+    };
   }
 
   async addIngredientUnit(

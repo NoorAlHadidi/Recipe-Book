@@ -1,7 +1,11 @@
 import { databaseClient, categoriesTable } from "@/database";
 import { AppError } from "@/errors";
-import { AddCategoryDTO, EditCategoryDTO } from "@/categories";
-import { eq, ne, and, or } from "drizzle-orm";
+import {
+  AddCategoryDTO,
+  CategoryQueryParamDTO,
+  EditCategoryDTO,
+} from "@/categories";
+import { eq, ne, and, or, ilike, sql } from "drizzle-orm";
 
 class CategoriesService {
   async addCategory(addCategoryDTO: AddCategoryDTO) {
@@ -112,17 +116,41 @@ class CategoriesService {
     return existingCategory[0];
   }
 
-  async getCategories() {
-    const categories = await databaseClient.db
+  async getCategories(categoryQueryParams: CategoryQueryParamDTO) {
+    const { page, limit, name } = categoryQueryParams;
+    const filterConditions = [];
+    if (name) {
+      filterConditions.push(ilike(categoriesTable.name, `%${name}%`));
+    }
+    const categoriesQuery = databaseClient.db
       .select({
         categoryId: categoriesTable.categoryId,
         name: categoriesTable.name,
         description: categoriesTable.description,
+        total: sql`count(*) over()`.mapWith(Number),
       })
       .from(categoriesTable)
-      .orderBy(categoriesTable.createdAt)
-      .execute();
-    return categories;
+      .orderBy(categoriesTable.createdAt);
+
+    if (filterConditions.length > 0) {
+      categoriesQuery.where(and(...filterConditions));
+    }
+
+    if (page && limit) {
+      const offset = (page - 1) * limit;
+      categoriesQuery.limit(limit).offset(offset);
+    }
+
+    const categories = await categoriesQuery.execute();
+
+    const total = categories.length > 0 ? categories[0].total : 0;
+
+    return {
+      page: page ? page : 1,
+      limit: limit ? limit : total,
+      total,
+      data: categories.map(({ total, ...category }) => category),
+    };
   }
 }
 

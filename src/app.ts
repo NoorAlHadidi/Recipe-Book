@@ -8,6 +8,7 @@ import { adminRouter } from '@/admins';
 import { categoriesRouter } from '@/categories';
 import { ingredientsRouter } from '@/ingredients';
 import { unitsRouter } from '@/units';
+import { recipesRouter } from '@/recipes';
 
 const app: Application = express();
 
@@ -24,6 +25,7 @@ app.use('/admin', adminRouter);
 app.use('/category', categoriesRouter)
 app.use('/ingredients', ingredientsRouter)
 app.use('/units', unitsRouter)
+app.use('/recipes', recipesRouter)
 
 app.use(globalErrorHandler);
 

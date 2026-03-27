@@ -71,6 +71,41 @@
       "when": 1774033802615,
       "tag": "0009_glossy_captain_america",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1774141916620,
+      "tag": "0010_blushing_catseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1774141965306,
+      "tag": "0011_amusing_tiger_shark",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1774381563130,
+      "tag": "0012_chief_black_panther",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1774578224294,
+      "tag": "0013_graceful_the_anarchist",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1774580450739,
+      "tag": "0014_dark_charles_xavier",
+      "breakpoints": true
     }
   ]
 }

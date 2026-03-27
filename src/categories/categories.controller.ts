@@ -4,6 +4,7 @@ import {
   addCategorySchema,
   categoriesService,
   categoryParamSchema,
+  categoryQueryParamsSchema,
   editCategorySchema,
 } from "@/categories";
 
@@ -37,7 +38,9 @@ class CategoriesController {
   });
 
   getCategories = asyncErrorHandler(async (req: Request, res: Response) => {
-    const categories = await categoriesService.getCategories();
+    const categoryQueryParams = categoryQueryParamsSchema.parse(req.query);
+    const categories =
+      await categoriesService.getCategories(categoryQueryParams);
     res.status(200).json(categories);
   });
 }

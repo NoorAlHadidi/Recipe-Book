@@ -394,21 +394,48 @@ ingredientsRouter.get(
  * @swagger
  * /ingredients:
  *   get:
- *     summary: Endpoint for retrieving all ingredients
+ *     summary: Endpoint for filtering and retrieving ingredients
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: name
+ *         required: false
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Ingredients retrieved successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: array
+ *               type: object
  *               properties:
- *                 ingredientId:
+ *                 page:
  *                   type: number
- *                 name:
- *                   type: string
+ *                 limit:
+ *                   type: number
+ *                 total:
+ *                   type: number
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                      type: object
+ *                      properties:
+ *                        ingredientId:
+ *                          type: number
+ *                        name:
+ *                          type: string
  *       400:
  *         description: Invalid input data
  *         content:
