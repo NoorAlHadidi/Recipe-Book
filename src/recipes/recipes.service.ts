@@ -4,6 +4,7 @@ import {
   categoriesTable,
   recipesTagsTable,
   stepsTable,
+  recipesIngredientsTable,
 } from "@/database";
 import {
   AddRecipeDTO,
@@ -12,6 +13,7 @@ import {
   checkRecipeExists,
   addRecipeIngredients,
   checkRecipeTags,
+  recipeIngredientsService,
 } from "@/recipes";
 import { AppError } from "@/errors";
 import { eq, or, and, ilike, sql } from "drizzle-orm";
@@ -161,11 +163,11 @@ class RecipesService {
   }
 
   async getRecipes(userId: number, recipeQueryParams: RecipeQueryParamDTO) {
-    const { page, limit, title, creatorId, categoryId, tagId } =
+    const { page, limit, title, creatorId, categoryId, ingredientId, tagId } =
       recipeQueryParams;
 
     const offset = (page - 1) * limit;
-    
+
     const filterConditions = [];
     filterConditions.push(
       or(
@@ -197,6 +199,16 @@ class RecipesService {
         total: sql`count(*) over()`.mapWith(Number),
       })
       .from(recipesTable);
+
+    if (ingredientId) {
+      filterConditions.push(
+        eq(recipesIngredientsTable.ingredientId, ingredientId),
+      );
+      recipesQuery.innerJoin(
+        recipesIngredientsTable,
+        eq(recipesIngredientsTable.recipeId, recipesTable.recipeId),
+      );
+    }
 
     if (tagId) {
       filterConditions.push(eq(recipesTagsTable.tagId, tagId));

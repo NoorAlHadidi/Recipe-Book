@@ -487,6 +487,11 @@ recipesRouter.get("/:recipeId", authenticateToken, recipesController.getRecipe);
  *         schema:
  *           type: number
  *       - in: query
+ *         name: ingredientId
+ *         required: false
+ *         schema:
+ *           type: number
+ *       - in: query
  *         name: tagId
  *         required: false
  *         schema:
