@@ -178,6 +178,11 @@ class RecipeIngredientsService {
         ),
       )
       .execute();
+    await databaseClient.db
+      .update(recipesTable)
+      .set({ updatedAt: new Date() })
+      .where(eq(recipesTable.recipeId, recipeId))
+      .execute();
   }
 
   async getIngredients(userId: number, recipeId: number) {
