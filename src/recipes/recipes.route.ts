@@ -1415,4 +1415,107 @@ recipesRouter.delete(
   recipesController.deleteRecipeIngredient,
 );
 
+/**
+ * @swagger
+ * /recipes/{recipeId}/log:
+ *   get:
+ *     summary: Endpoint for retrieving recipe change log
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Recipe change log retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               properties:
+ *                 logId:
+ *                   type: number
+ *                 action:
+ *                   type: string
+ *                   enum: [add, edit, delete]
+ *                 field:
+ *                   type: number
+ *                   enum: [title, description, visibility, category, tag, step, ingredient]
+ *                 fieldId:
+ *                   type: number
+ *                 from:
+ *                   type: string
+ *                 to:
+ *                   type: string
+ *                 changedAt:
+ *                   type: string
+ *                   format: date-time
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Authenticated user must be recipe creator or admin to view recipe change log
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Recipe with specified ID is not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+recipesRouter.get("/:recipeId/log", authenticateToken, recipesController.getRecipeChangeLog);
+
 export default recipesRouter;

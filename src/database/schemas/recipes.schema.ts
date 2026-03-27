@@ -123,5 +123,5 @@ export const recipeChangeLogsTable = pgTable("recipe_change_logs", {
   fieldId: integer("field_id"),
   from: varchar("from", { length: 500 }),
   to: varchar("to", { length: 500 }),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  changedAt: timestamp("changed_at", { mode: "date" }).defaultNow().notNull(),
 });

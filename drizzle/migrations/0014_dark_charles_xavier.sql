@@ -1,0 +1,1 @@
+ALTER TABLE "recipe_change_logs" RENAME COLUMN "created_at" TO "changed_at";

@@ -5,6 +5,7 @@ import {
   recipesTagsTable,
   stepsTable,
   recipesIngredientsTable,
+  recipeChangeLogsTable,
 } from "@/database";
 import {
   AddRecipeDTO,
@@ -16,7 +17,7 @@ import {
   logRecipeChange,
 } from "@/recipes";
 import { AppError } from "@/errors";
-import { eq, or, and, ilike, sql } from "drizzle-orm";
+import { eq, or, and, ilike, sql, desc } from "drizzle-orm";
 
 class RecipesService {
   async addRecipe(userId: number, addRecipeDTO: AddRecipeDTO) {
@@ -268,6 +269,30 @@ class RecipesService {
       total: recipes.length > 0 ? recipes[0].total : 0,
       data: recipes.map(({ total, ...recipe }) => recipe),
     };
+  }
+
+  async getRecipeChangeLog(userId: number, userRole: string, recipeId: number) {
+    const existingRecipe = await checkRecipeExists(recipeId);
+    if (existingRecipe.creatorId !== userId && userRole !== "admin") {
+      throw new AppError(
+        "Requesting user is not authorised to view recipe change logs.",
+        403,
+      );
+    }
+    return await databaseClient.db
+      .select({
+        logId: recipeChangeLogsTable.logId,
+        action: recipeChangeLogsTable.action,
+        field: recipeChangeLogsTable.field,
+        fieldId: recipeChangeLogsTable.fieldId,
+        from: recipeChangeLogsTable.from,
+        to: recipeChangeLogsTable.to,
+        createdAt: recipeChangeLogsTable.changedAt,
+      })
+      .from(recipeChangeLogsTable)
+      .where(eq(recipeChangeLogsTable.recipeId, recipeId))
+      .orderBy(desc(recipeChangeLogsTable.changedAt))
+      .execute();
   }
 }
 

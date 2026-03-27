@@ -138,6 +138,14 @@ class RecipesController {
     await recipeIngredientsService.deleteIngredient(userId, recipeId, ingredientId);
     res.status(204).send();
   });
+
+  getRecipeChangeLog = asyncErrorHandler(async (req: Request, res: Response) => {
+    const { recipeId } = recipeParamSchema.parse(req.params);
+    const userId = req.user!.sub;
+    const userRole = req.user!.role;
+    const changeLog = await recipesService.getRecipeChangeLog(userId, userRole, recipeId);
+    res.status(200).json(changeLog);
+  });
 }
 
 export const recipesController = new RecipesController();
