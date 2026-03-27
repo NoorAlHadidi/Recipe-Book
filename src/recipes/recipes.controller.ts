@@ -124,6 +124,13 @@ class RecipesController {
       res.status(200).json(recipeIngs);
     },
   );
+
+  getRecipeIngredients = asyncErrorHandler(async (req: Request, res: Response) => {
+    const { recipeId } = recipeParamSchema.parse(req.params);
+    const userId = req.user!.sub;
+    const ingredients = await recipeIngredientsService.getIngredients(userId, recipeId);
+    res.status(200).json(ingredients);
+  });
 }
 
 export const recipesController = new RecipesController();

@@ -1,5 +1,6 @@
 import {
   databaseClient,
+  ingredientsTable,
   ingredientsUnitsTable,
   recipesIngredientsTable,
   recipesTable,
@@ -133,6 +134,39 @@ class RecipeIngredientsService {
         notes: recipesIngredientsTable.notes,
       })
       .from(recipesIngredientsTable)
+      .where(eq(recipesIngredientsTable.recipeId, recipeId))
+      .execute();
+  }
+
+  async getIngredients(userId: number, recipeId: number) {
+    const existingRecipe = await checkRecipeExists(recipeId);
+    if (
+      existingRecipe.creatorId !== userId &&
+      existingRecipe.visibility === "private"
+    ) {
+      throw new AppError(
+        "Requesting user is not authorised to view this recipe's details.",
+        403,
+      );
+    }
+    return databaseClient.db
+      .select({
+        ingredientId: ingredientsTable.ingredientId,
+        ingredientName: ingredientsTable.name,
+        quantity: recipesIngredientsTable.quantity,
+        unitId: unitsTable.unitId,
+        unitName: unitsTable.name,
+        notes: recipesIngredientsTable.notes,
+      })
+      .from(recipesIngredientsTable)
+      .innerJoin(
+        ingredientsTable,
+        eq(recipesIngredientsTable.ingredientId, ingredientsTable.ingredientId),
+      )
+      .innerJoin(
+        unitsTable,
+        eq(recipesIngredientsTable.unitId, unitsTable.unitId),
+      )
       .where(eq(recipesIngredientsTable.recipeId, recipeId))
       .execute();
   }
