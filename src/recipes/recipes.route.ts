@@ -1998,7 +1998,7 @@ recipesRouter.delete(
  * @swagger
  * /recipes/{recipeId}/favourites:
  *   get:
- *     summary: Endpoint for filtering and retrieving recipes
+ *     summary: Endpoint for retrieving users who favourites recipe
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -2088,4 +2088,5 @@ recipesRouter.delete(
  *                   type: string
  */
 recipesRouter.get("/:recipeId/favourites", authenticateToken, favouritesController.getRecipeFavourites);
+
 export default recipesRouter;
