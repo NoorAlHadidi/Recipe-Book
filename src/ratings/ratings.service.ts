@@ -1,8 +1,5 @@
-import {
-  databaseClient,
-  ratingsTable,
-} from "@/database";
-import { eq, and } from "drizzle-orm";
+import { databaseClient, ratingsTable, usersTable } from "@/database";
+import { eq, and, desc } from "drizzle-orm";
 import { AddRatingDTO } from "@/ratings";
 import { checkRecipeExists } from "@/recipes";
 import { AppError } from "@/errors";
@@ -15,7 +12,7 @@ class RatingsService {
   ) {
     const existingRecipe = await checkRecipeExists(recipeId);
     if (existingRecipe.visibility === "private") {
-        throw new AppError("Private recipes cannot be rated.", 403);
+      throw new AppError("Private recipes cannot be rated.", 403);
     }
     const { rating } = addRatingDTO;
     const existingRating = await databaseClient.db
@@ -49,6 +46,23 @@ class RatingsService {
         .execute();
     }
     return newRating[0];
+  }
+
+  async getRatings(recipeId: number) {
+    await checkRecipeExists(recipeId);
+    return await databaseClient.db
+      .select({
+        userId: usersTable.userId,
+        firstName: usersTable.firstName,
+        lastName: usersTable.lastName,
+        rating: ratingsTable.rating,
+        ratedAt: ratingsTable.ratedAt,
+      })
+      .from(ratingsTable)
+      .innerJoin(usersTable, eq(ratingsTable.userId, usersTable.userId))
+      .where(eq(ratingsTable.recipeId, recipeId))
+      .orderBy(desc(ratingsTable.ratedAt), desc(ratingsTable.rating))
+      .execute();
   }
 }
 

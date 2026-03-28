@@ -11,6 +11,12 @@ class RatingsController {
     const newRating = await ratingsService.addRating(userId, recipeId, addRatingDTO);
     res.status(201).json(newRating);
   });
+
+  getRecipeRatings = asyncErrorHandler(async (req: Request, res: Response) => {
+    const { recipeId } = recipeParamSchema.parse(req.params);
+    const ratings = await ratingsService.getRatings(recipeId);
+    res.status(200).json(ratings);
+  });
 }
 
 export const ratingsController = new RatingsController();
