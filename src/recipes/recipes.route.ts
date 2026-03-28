@@ -497,6 +497,12 @@ recipesRouter.get("/:recipeId", authenticateToken, recipesController.getRecipe);
  *         required: false
  *         schema:
  *           type: number
+ *       - in: query
+ *         name: sortBy
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [date, rating]     
  *     responses:
  *       200:
  *         description: Recipes retrieved successfully
@@ -536,6 +542,9 @@ recipesRouter.get("/:recipeId", authenticateToken, recipesController.getRecipe);
  *                        updatedAt:
  *                          type: number
  *                          format: date-time
+ *                        averageRating:
+ *                          type: number
+ *                          format: float
  *       400:
  *         description: Invalid input data
  *         content:

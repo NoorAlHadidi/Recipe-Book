@@ -6,6 +6,7 @@ import {
   stepsTable,
   recipesIngredientsTable,
   recipeChangeLogsTable,
+  ratingsTable,
 } from "@/database";
 import {
   AddRecipeDTO,
@@ -201,8 +202,16 @@ class RecipesService {
   }
 
   async getRecipes(userId: number, recipeQueryParams: RecipeQueryParamDTO) {
-    const { page, limit, title, creatorId, categoryId, ingredientId, tagId } =
-      recipeQueryParams;
+    const {
+      page,
+      limit,
+      title,
+      creatorId,
+      categoryId,
+      ingredientId,
+      tagId,
+      sortBy,
+    } = recipeQueryParams;
 
     const offset = (page - 1) * limit;
 
@@ -235,6 +244,9 @@ class RecipesService {
         createdAt: recipesTable.createdAt,
         updatedAt: recipesTable.updatedAt,
         total: sql`count(*) over()`.mapWith(Number),
+        averageRating: sql`coalesce(avg(${ratingsTable.rating}), 0)`.mapWith(
+          Number,
+        ),
       })
       .from(recipesTable);
 
@@ -256,11 +268,26 @@ class RecipesService {
       );
     }
 
-    recipesQuery
-      .where(and(...filterConditions))
-      .limit(limit)
-      .offset(offset);
+    if (sortBy === "date") {
+      recipesQuery
+        .groupBy(recipesTable.recipeId)
+        .where(and(...filterConditions))
+        .orderBy(desc(recipesTable.createdAt));
+    } else if (sortBy === "rating") {
+      recipesQuery
+        .leftJoin(
+          ratingsTable,
+          eq(ratingsTable.recipeId, recipesTable.recipeId),
+        )
+        .groupBy(recipesTable.recipeId)
+        .where(and(...filterConditions))
+        .orderBy(
+          desc(sql`coalesce(avg(${ratingsTable.rating}), 0)`),
+          desc(recipesTable.createdAt),
+        );
+    }
 
+    recipesQuery.limit(limit).offset(offset);
     const recipes = await recipesQuery.execute();
 
     return {
