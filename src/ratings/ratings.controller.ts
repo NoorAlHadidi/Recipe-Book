@@ -12,6 +12,13 @@ class RatingsController {
     res.status(201).json(newRating);
   });
 
+  removeRating = asyncErrorHandler(async (req: Request, res: Response) => {
+    const { recipeId } = recipeParamSchema.parse(req.params);
+    const userId = req.user!.sub;
+    await ratingsService.deleteRating(userId, recipeId);
+    res.status(204).send();
+  });
+
   getRecipeRatings = asyncErrorHandler(async (req: Request, res: Response) => {
     const { recipeId } = recipeParamSchema.parse(req.params);
     const ratings = await ratingsService.getRatings(recipeId);

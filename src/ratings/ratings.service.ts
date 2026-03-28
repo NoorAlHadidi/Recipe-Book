@@ -48,6 +48,36 @@ class RatingsService {
     return newRating[0];
   }
 
+  async deleteRating(userId: number, recipeId: number) {
+    await checkRecipeExists(recipeId);
+    const existingRating = await databaseClient.db
+      .select()
+      .from(ratingsTable)
+      .where(
+        and(
+          eq(ratingsTable.userId, userId),
+          eq(ratingsTable.recipeId, recipeId),
+        ),
+      )
+      .execute();
+    let newRating;
+    if (existingRating.length === 0) {
+      throw new AppError(
+        "Authenticated user has no rating for this recipe.",
+        404,
+      );
+    }
+    await databaseClient.db
+      .delete(ratingsTable)
+      .where(
+        and(
+          eq(ratingsTable.userId, userId),
+          eq(ratingsTable.recipeId, recipeId),
+        ),
+      )
+      .execute();
+  }
+
   async getRatings(recipeId: number) {
     await checkRecipeExists(recipeId);
     return await databaseClient.db

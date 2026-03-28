@@ -970,7 +970,11 @@ recipesRouter.delete(
  *                 message:
  *                   type: string
  */
-recipesRouter.get("/:recipeId/steps", authenticateToken, recipesController.getRecipeSteps);
+recipesRouter.get(
+  "/:recipeId/steps",
+  authenticateToken,
+  recipesController.getRecipeSteps,
+);
 
 /**
  * @swagger
@@ -1136,13 +1140,13 @@ recipesRouter.post(
  *             properties:
  *               unitId:
  *                 type: number
- *                 nullable: true 
+ *                 nullable: true
  *               quantity:
  *                 type: number
- *                 nullable: true 
+ *                 nullable: true
  *               notes:
  *                 type: string
- *                 nullable: true 
+ *                 nullable: true
  *     responses:
  *       200:
  *         description: Ingredient editted successfully
@@ -1324,7 +1328,11 @@ recipesRouter.patch(
  *                 message:
  *                   type: string
  */
-recipesRouter.get("/:recipeId/ingredients", authenticateToken, recipesController.getRecipeIngredients);
+recipesRouter.get(
+  "/:recipeId/ingredients",
+  authenticateToken,
+  recipesController.getRecipeIngredients,
+);
 
 /**
  * @swagger
@@ -1517,7 +1525,11 @@ recipesRouter.delete(
  *                 message:
  *                   type: string
  */
-recipesRouter.get("/:recipeId/log", authenticateToken, recipesController.getRecipeChangeLog);
+recipesRouter.get(
+  "/:recipeId/log",
+  authenticateToken,
+  recipesController.getRecipeChangeLog,
+);
 
 /**
  * @swagger
@@ -1632,6 +1644,79 @@ recipesRouter.post(
 /**
  * @swagger
  * /recipes/{recipeId}/ratings:
+ *   delete:
+ *     summary: Endpoint for removing an recipe's rating
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: number
+ *     responses:
+ *       204:
+ *         description: Rating deleted successfully
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Recipe not found / Authenticated user has not rated recipe
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+recipesRouter.delete(
+  "/:recipeId/ratings",
+  authenticateToken,
+  ratingsController.removeRating,
+);
+
+/**
+ * @swagger
+ * /recipes/{recipeId}/ratings:
  *   get:
  *     summary: Endpoint for retrieving a recipe's ratings
  *     security:
@@ -1712,6 +1797,10 @@ recipesRouter.post(
  *                 message:
  *                   type: string
  */
-recipesRouter.get("/:recipeId/ratings", authenticateToken, ratingsController.getRecipeRatings);
+recipesRouter.get(
+  "/:recipeId/ratings",
+  authenticateToken,
+  ratingsController.getRecipeRatings,
+);
 
 export default recipesRouter;
