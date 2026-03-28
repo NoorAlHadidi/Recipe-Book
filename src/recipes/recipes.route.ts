@@ -546,6 +546,8 @@ recipesRouter.get("/:recipeId", authenticateToken, recipesController.getRecipe);
  *                        averageRating:
  *                          type: number
  *                          format: float
+ *                        favouritesCount:
+ *                          type: number
  *       400:
  *         description: Invalid input data
  *         content:
