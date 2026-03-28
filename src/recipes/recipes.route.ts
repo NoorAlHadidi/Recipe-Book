@@ -1733,19 +1733,28 @@ recipesRouter.delete(
  *         content:
  *           application/json:
  *             schema:
- *               type: array
+ *               type: object
  *               properties:
- *                 userId:
+ *                 total:
  *                   type: number
- *                 firstName:
- *                   type: string
- *                 lastName:
- *                   type: string
- *                 rating:
+ *                 average:
  *                   type: number
- *                 ratedAt:
- *                   type: string
- *                   format: date-time
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                      type: object
+ *                      properties:
+ *                        userId:
+ *                          type: number
+ *                        firstName:
+ *                          type: string
+ *                        lastName:
+ *                          type: number
+ *                        rating:
+ *                          type: number
+ *                        ratedAt:
+ *                          type: string
+ *                          format: date-time
  *       400:
  *         description: Invalid input data
  *         content:

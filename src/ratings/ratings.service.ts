@@ -1,5 +1,5 @@
 import { databaseClient, ratingsTable, usersTable } from "@/database";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { AddRatingDTO } from "@/ratings";
 import { checkRecipeExists } from "@/recipes";
 import { AppError } from "@/errors";
@@ -80,19 +80,26 @@ class RatingsService {
 
   async getRatings(recipeId: number) {
     await checkRecipeExists(recipeId);
-    return await databaseClient.db
+    const ratings = await databaseClient.db
       .select({
         userId: usersTable.userId,
         firstName: usersTable.firstName,
         lastName: usersTable.lastName,
         rating: ratingsTable.rating,
         ratedAt: ratingsTable.ratedAt,
+        total: sql`count(*) over()`.mapWith(Number),
+        average: sql`avg(${ratingsTable.rating}) over()`.mapWith(Number),
       })
       .from(ratingsTable)
       .innerJoin(usersTable, eq(ratingsTable.userId, usersTable.userId))
       .where(eq(ratingsTable.recipeId, recipeId))
       .orderBy(desc(ratingsTable.ratedAt), desc(ratingsTable.rating))
       .execute();
+    return {
+      total: ratings.length > 0 ? ratings[0].total : 0,
+      average: ratings.length > 0 ? ratings[0].average : 0,
+      data: ratings.map(({ total, average, ...rating }) => rating),
+    };
   }
 }
 
