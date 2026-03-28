@@ -1,4 +1,10 @@
-import { check, integer, pgTable, timestamp } from "drizzle-orm/pg-core";
+import {
+  check,
+  integer,
+  pgTable,
+  primaryKey,
+  timestamp,
+} from "drizzle-orm/pg-core";
 import { recipesTable, usersTable } from "@/database";
 import { sql } from "drizzle-orm";
 
@@ -14,5 +20,11 @@ export const ratingsTable = pgTable(
     rating: integer("rating").notNull(),
     ratedAt: timestamp("rated_at", { mode: "date" }).defaultNow().notNull(),
   },
-  (table) => [check("rating_check", sql`${table.rating} between 1 and 5`)],
+  (table) => [
+    primaryKey({
+      name: "user_recipe",
+      columns: [table.userId, table.recipeId],
+    }),
+    check("rating_check", sql`${table.rating} between 1 and 5`),
+  ],
 );

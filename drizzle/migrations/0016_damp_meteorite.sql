@@ -1,0 +1,1 @@
+ALTER TABLE "ratings" ADD CONSTRAINT "user_recipe" PRIMARY KEY("user_id","recipe_id");
