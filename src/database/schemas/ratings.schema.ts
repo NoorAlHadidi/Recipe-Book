@@ -28,3 +28,4 @@ export const ratingsTable = pgTable(
     check("rating_check", sql`${table.rating} between 1 and 5`),
   ],
 );
+
