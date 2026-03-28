@@ -287,7 +287,7 @@ class RecipesService {
         fieldId: recipeChangeLogsTable.fieldId,
         from: recipeChangeLogsTable.from,
         to: recipeChangeLogsTable.to,
-        createdAt: recipeChangeLogsTable.changedAt,
+        changedAt: recipeChangeLogsTable.changedAt,
       })
       .from(recipeChangeLogsTable)
       .where(eq(recipeChangeLogsTable.recipeId, recipeId))
