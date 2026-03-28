@@ -9,6 +9,7 @@ import { categoriesRouter } from '@/categories';
 import { ingredientsRouter } from '@/ingredients';
 import { unitsRouter } from '@/units';
 import { recipesRouter } from '@/recipes';
+import { favouritesRouter } from '@/favourites';
 
 const app: Application = express();
 
@@ -26,6 +27,7 @@ app.use('/category', categoriesRouter)
 app.use('/ingredients', ingredientsRouter)
 app.use('/units', unitsRouter)
 app.use('/recipes', recipesRouter)
+app.use('/favourites', favouritesRouter)
 
 app.use(globalErrorHandler);
 

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authenticateToken } from "@/middlewares";
 import { recipesController } from "@/recipes";
 import { ratingsController } from "@/ratings";
+import { favouritesController } from "@/favourites";
 
 export const recipesRouter = Router();
 
@@ -545,6 +546,8 @@ recipesRouter.get("/:recipeId", authenticateToken, recipesController.getRecipe);
  *                        averageRating:
  *                          type: number
  *                          format: float
+ *                        favouritesCount:
+ *                          type: number
  *       400:
  *         description: Invalid input data
  *         content:
@@ -1654,7 +1657,7 @@ recipesRouter.post(
  * @swagger
  * /recipes/{recipeId}/ratings:
  *   delete:
- *     summary: Endpoint for removing an recipe's rating
+ *     summary: Endpoint for removing a recipe's rating
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -1820,5 +1823,270 @@ recipesRouter.get(
   authenticateToken,
   ratingsController.getRecipeRatings,
 );
+
+/**
+ * @swagger
+ * /recipes/{recipeId}/favourites:
+ *   post:
+ *     summary: Endpoint for favouriting a recipe
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: number
+ *     responses:
+ *       201:
+ *         description: Recipe favourited successfully
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Private recipes cannot be favourited
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Recipe with specified ID is not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       409:
+ *         description: User has already favourited this recipe
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+recipesRouter.post(
+  "/:recipeId/favourites",
+  authenticateToken,
+  favouritesController.addFavourite,
+);
+
+/**
+ * @swagger
+ * /recipes/{recipeId}/favourites:
+ *   delete:
+ *     summary: Endpoint for unfavouriting a rceipe
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: number
+ *     responses:
+ *       204:
+ *         description: Recipe unfavourited successfully
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Recipe not found / Authenticated user has not favourited recipe
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+recipesRouter.delete(
+  "/:recipeId/favourites",
+  authenticateToken,
+  favouritesController.removeFavourite,
+);
+
+/**
+ * @swagger
+ * /recipes/{recipeId}/favourites:
+ *   get:
+ *     summary: Endpoint for retrieving users who favourites recipe
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: integer 
+ *     responses:
+ *       200:
+ *         description: Recipe favourited users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               properties:
+ *                 userId:
+ *                   type: number
+ *                 firstName:
+ *                   type: string
+ *                 lastName:
+ *                   type: string
+ *                 favouritedAt:
+ *                   type: string
+ *                   format: date-time
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Authenticated user cannot view recipe favourited (Must be creator)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Recipe with specified ID is not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+recipesRouter.get("/:recipeId/favourites", authenticateToken, favouritesController.getRecipeFavourites);
 
 export default recipesRouter;

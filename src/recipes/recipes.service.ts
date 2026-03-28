@@ -7,6 +7,7 @@ import {
   recipesIngredientsTable,
   recipeChangeLogsTable,
   ratingsTable,
+  favouritesTable,
 } from "@/database";
 import {
   AddRecipeDTO,
@@ -247,8 +248,15 @@ class RecipesService {
         averageRating: sql`coalesce(avg(${ratingsTable.rating}), 0)`.mapWith(
           Number,
         ),
+        favoritesCount: sql`count(${favouritesTable.userId})`.mapWith(Number),
       })
-      .from(recipesTable);
+      .from(recipesTable)
+      .leftJoin(ratingsTable, eq(ratingsTable.recipeId, recipesTable.recipeId))
+      .leftJoin(
+        favouritesTable,
+        eq(favouritesTable.recipeId, recipesTable.recipeId),
+      )
+      .groupBy(recipesTable.recipeId);
 
     if (ingredientId) {
       filterConditions.push(
@@ -268,23 +276,19 @@ class RecipesService {
       );
     }
 
-    if (sortBy === "date") {
-      recipesQuery
-        .groupBy(recipesTable.recipeId)
-        .where(and(...filterConditions))
-        .orderBy(desc(recipesTable.createdAt));
+    recipesQuery.where(and(...filterConditions));
+    if (sortBy === "favourite") {
+      recipesQuery.orderBy(
+        desc(sql`count(${favouritesTable.userId})`),
+        desc(recipesTable.createdAt),
+      );
     } else if (sortBy === "rating") {
-      recipesQuery
-        .leftJoin(
-          ratingsTable,
-          eq(ratingsTable.recipeId, recipesTable.recipeId),
-        )
-        .groupBy(recipesTable.recipeId)
-        .where(and(...filterConditions))
-        .orderBy(
-          desc(sql`coalesce(avg(${ratingsTable.rating}), 0)`),
-          desc(recipesTable.createdAt),
-        );
+      recipesQuery.orderBy(
+        desc(sql`coalesce(avg(${ratingsTable.rating}), 0)`),
+        desc(recipesTable.createdAt),
+      );
+    } else {
+      recipesQuery.orderBy(desc(recipesTable.createdAt));
     }
 
     recipesQuery.limit(limit).offset(offset);

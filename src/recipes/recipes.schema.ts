@@ -152,7 +152,7 @@ export const recipeQueryParamsSchema = z.object({
     .positive("Tag ID must be a positive integer.")
     .optional(),
   sortBy: z
-    .enum(["date", "rating"], "Sorting must be by date or rating.")
+    .enum(["date", "rating", "favourite"], "Sorting must be by date, rating or favourite.")
     .default("date"),
 });
 
