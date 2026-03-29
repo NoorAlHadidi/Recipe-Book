@@ -3,6 +3,7 @@ import { authenticateToken } from "@/middlewares";
 import { recipesController } from "@/recipes";
 import { ratingsController } from "@/ratings";
 import { favouritesController } from "@/favourites";
+import { commentsController } from "@/comments";
 
 export const recipesRouter = Router();
 
@@ -946,7 +947,7 @@ recipesRouter.delete(
  *                 message:
  *                   type: string
  *       403:
- *         description: Recipe is private to authorised user
+ *         description: Recipe is private to authenticated user
  *         content:
  *           application/json:
  *             schema:
@@ -1304,7 +1305,7 @@ recipesRouter.patch(
  *                 message:
  *                   type: string
  *       403:
- *         description: Recipe is private to authorised user
+ *         description: Recipe is private to authenticated user
  *         content:
  *           application/json:
  *             schema:
@@ -2088,5 +2089,226 @@ recipesRouter.delete(
  *                   type: string
  */
 recipesRouter.get("/:recipeId/favourites", authenticateToken, favouritesController.getRecipeFavourites);
+
+/**
+ * @swagger
+ * /recipes/{recipeId}/comments:
+ *   post:
+ *     summary: Endpoint for adding a comment to a recipe
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: number
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - content
+ *             properties:
+ *               content:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Comment added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 commentId:
+ *                   type: number
+ *                 commentedBy:
+ *                   type: number
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Private recipes cannot be commented on
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Recipe with specified ID is not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+recipesRouter.post(
+  "/:recipeId/comments",
+  authenticateToken,
+  commentsController.addComment,
+);
+
+/**
+ * @swagger
+ * /recipes/{recipeId}/comments:
+ *   get:
+ *     summary: Endpoint for retrieving a recipe's comments
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Recipe comments retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 total:
+ *                   type: number
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                      type: object
+ *                      properties:
+ *                        commentId:
+ *                          type: number
+ *                        content:
+ *                          type: string
+ *                        commentedBy:
+ *                          type: number
+ *                        firstName:
+ *                          type: string
+ *                        lastName:
+ *                          type: string
+ *                        createdAt:
+ *                          type: string
+ *                          format: date-time
+ *                        updatedAt:
+ *                          type: number
+ *                          format: date-time
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Authenticated user cannot view recipe comments (Must be creator)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Recipe with specified ID is not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+recipesRouter.get(
+  "/:recipeId/comments",
+  authenticateToken,
+  commentsController.getRecipeComments,
+);
 
 export default recipesRouter;

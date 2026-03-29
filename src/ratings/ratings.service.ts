@@ -60,7 +60,6 @@ class RatingsService {
         ),
       )
       .execute();
-    let newRating;
     if (existingRating.length === 0) {
       throw new AppError(
         "Authenticated user has no rating for this recipe.",
