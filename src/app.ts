@@ -11,6 +11,7 @@ import { unitsRouter } from '@/units';
 import { recipesRouter } from '@/recipes';
 import { favouritesRouter } from '@/favourites';
 import { commentsRouter } from '@/comments';
+import { reportsRouter } from '@/reports';
 
 const app: Application = express();
 
@@ -30,6 +31,7 @@ app.use('/units', unitsRouter)
 app.use('/recipes', recipesRouter)
 app.use('/favourites', favouritesRouter)
 app.use('/comments', commentsRouter)
+app.use('/reports', reportsRouter);
 
 app.use(globalErrorHandler);
 

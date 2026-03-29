@@ -1,52 +1,197 @@
 import { Router } from "express";
-import { checkAdmin, authenticateToken } from "@/middlewares";
-import { commentsController } from "@/comments";
+import { authenticateToken, checkAdmin } from "@/middlewares";
 import { reportsController } from "@/reports";
+import { check } from "zod";
 
-export const commentsRouter = Router();
+export const reportsRouter = Router();
 
 /**
  * @swagger
- * /comments/{commentId}:
- *   patch:
- *     summary: Endpoint for editting an existing comment
+ * /reports/{reportId}:
+ *   delete:
+ *     summary: Endpoint for removing an exisiting report
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: commentId
+ *         name: reportId
  *         required: true
  *         schema:
  *           type: number
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               content:
- *                 type: string
  *     responses:
- *       200:
- *         description: Comment updated successfully
+ *       204:
+ *         description: Report deleted successfully
+ *       400:
+ *         description: Invalid input data
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 commentId:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Authenticated user is not authorized to delete this report (Must be report owner or admin)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Report with the specified ID does not exist
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+reportsRouter.delete(
+  "/:reportId",
+  authenticateToken,
+  reportsController.deleteReport,
+);
+
+/**
+ * @swagger
+ * /reports/me:
+ *   get:
+ *     summary: Endpoint for retrieving the logged in user's reports
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User's reports retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               properties:
+ *                 reportId:
  *                   type: number
- *                 commentedBy:
+ *                 commentId:
  *                   type: number
  *                 content:
  *                   type: string
  *                 createdAt:
  *                   type: string
  *                   format: date-time
- *                 updatedAt:
+ *                 status:
+ *                   type: string
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+reportsRouter.get("/me", authenticateToken, reportsController.getUserReports);
+
+/**
+ * @swagger
+ * /reports:
+ *   get:
+ *     summary: Endpoint for retrieving all reports
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [open, closed, all]
+ *     responses:
+ *       200:
+ *         description: Reports retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               properties:
+ *                 reportId:
+ *                   type: number
+ *                 reportedBy:
+ *                   type: number
+ *                 commentId:
+ *                   type: number
+ *                 content:
+ *                   type: string
+ *                 createdAt:
  *                   type: string
  *                   format: date-time
+ *                 status:
+ *                   type: string
  *       400:
  *         description: Invalid input data
  *         content:
@@ -74,19 +219,7 @@ export const commentsRouter = Router();
  *                 message:
  *                   type: string
  *       403:
- *         description: Authenticated user is not the comment owner
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *       404:
- *         description: Comment with this ID does not exist / has been deleted
+ *         description: Authenticated user cannot view reports (Must be admin)
  *         content:
  *           application/json:
  *             schema:
@@ -110,122 +243,35 @@ export const commentsRouter = Router();
  *                 message:
  *                   type: string
  */
-commentsRouter.patch(
-  "/:commentId",
+reportsRouter.get(
+  "/",
   authenticateToken,
-  commentsController.editComment,
+  checkAdmin,
+  reportsController.getAllReports,
 );
 
 /**
  * @swagger
- * /comments/{commentId}:
- *   delete:
- *     summary: Endpoint for removing an existing comment
+ * /reports:
+ *   get:
+ *     summary: Endpoint for retrieving a single report
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: commentId
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       204:
- *         description: Comment deleted successfully
- *       400:
- *         description: Invalid input data
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *                 details:
- *                   type: object
- *       401:
- *         description: Authentication required
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *       403:
- *         description: Authenticated user is not allowed to delete comment (Must be admin or creator)
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *       404:
- *         description: Comment with this ID does not exist / has been deleted
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- */
-commentsRouter.delete(
-  "/:commentId",
-  authenticateToken,
-  commentsController.removeComment,
-);
-
-/**
- * @swagger
- * /comments/{commentId}/reports:
- *   post:
- *     summary: Endpoint for adding a repprt to a comment
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: commentId
+ *         name: reportId
  *         required: true
  *         schema:
  *           type: number
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               content:
- *                 type: string
+ *       - in: query
+ *         name: status
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [open, closed, all]
  *     responses:
- *       201:
- *         description: Report added successfully
+ *       200:
+ *         description: Report retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -233,15 +279,17 @@ commentsRouter.delete(
  *               properties:
  *                 reportId:
  *                   type: number
- *                 commentId:
- *                   type: number
  *                 reportedBy:
+ *                   type: number
+ *                 commentId:
  *                   type: number
  *                 content:
  *                   type: string
  *                 createdAt:
  *                   type: string
  *                   format: date-time
+ *                 status:
+ *                   type: string
  *       400:
  *         description: Invalid input data
  *         content:
@@ -268,8 +316,110 @@ commentsRouter.delete(
  *                   example: "error"
  *                 message:
  *                   type: string
+ *       403:
+ *         description: Authenticated user cannot view report (Must be report owner oradmin)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ */
+reportsRouter.get(
+  "/:reportId",
+  authenticateToken,
+  reportsController.getReport,
+);
+
+/**
+ * @swagger
+ * /reports/{reportId}/resolve:
+ *   post:
+ *     summary: Endpoint for resolving a report
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: reportId
+ *         required: true
+ *         schema:
+ *           type: number
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               action:
+ *                 type: string
+ *                 enum: [keep, delete]
+ *     responses:
+ *       200:
+ *         description: Report resolved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Invalid input data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                 details:
+ *                   type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *       403:
+ *         description: Authenticated user cannot resolve report (Must be admin)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
  *       404:
- *         description: Comment with this ID does not exist / has been deleted
+ *         description: Report with the specified ID does not exist
  *         content:
  *           application/json:
  *             schema:
@@ -281,7 +431,7 @@ commentsRouter.delete(
  *                 message:
  *                   type: string
  *       409:
- *         description: Authenticated user has already reported this comment
+ *         description: Report has already been resolved
  *         content:
  *           application/json:
  *             schema:
@@ -305,118 +455,11 @@ commentsRouter.delete(
  *                 message:
  *                   type: string
  */
-commentsRouter.post(
-  "/:commentId/reports",
-  authenticateToken,
-  reportsController.addReport,
-);
-
-/**
- * @swagger
- * /comments/{commentId}/reports:
- *   get:
- *     summary: Endpoint for retrieving a comment's reports
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: commentId
- *         required: true
- *         schema:
- *           type: integer
- *       - in: query
- *         name: status
- *         required: false
- *         schema:
- *           type: string
- *           enum: [open, closed, all]
- *     responses:
- *       200:
- *         description: Comment reports retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               properties:
- *                 reportId:
- *                   type: number
- *                 reportedBy:
- *                   type: number
- *                 content:
- *                   type: string
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *                 status:
- *                   type: string
- *       400:
- *         description: Invalid input data
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *                 details:
- *                   type: object
- *       401:
- *         description: Authentication required
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *       403:
- *         description: Authenticated user cannot view comment reports (Must be admin)
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *       404:
- *         description: Comment with specified ID is not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- */
-commentsRouter.get(
-  "/:commentId/reports",
+reportsRouter.post(
+  "/:reportId/resolve",
   authenticateToken,
   checkAdmin,
-  reportsController.getCommentReports,
+  reportsController.resolveReport,
 );
 
-export default commentsRouter;
+export default reportsRouter;
