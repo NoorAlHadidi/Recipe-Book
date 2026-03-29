@@ -54,7 +54,7 @@ class CommentsService {
       );
     }
     if (existingComment[0].commentedBy !== userId) {
-        throw new AppError(
+      throw new AppError(
         "Authenticated user is not allowed to edit this comment.",
         403,
       );
@@ -124,8 +124,14 @@ class CommentsService {
   async getRecipeComments(userId: number, recipeId: number) {
     const existingRecipe = await checkRecipeExists(recipeId);
 
-    if (existingRecipe.visibility === "private" && existingRecipe.creatorId !== userId) {
-        throw new AppError("Authenticated user is not allowed to view private recipe's comments", 403)
+    if (
+      existingRecipe.visibility === "private" &&
+      existingRecipe.creatorId !== userId
+    ) {
+      throw new AppError(
+        "Authenticated user is not allowed to view private recipe's comments",
+        403,
+      );
     }
 
     const comments = await databaseClient.db
