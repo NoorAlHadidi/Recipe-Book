@@ -22,12 +22,12 @@ class ReportsController {
 
   getCommentReports = asyncErrorHandler(async (req: Request, res: Response) => {
     const { commentId } = commentParamSchema.parse(req.params);
-    const status = reportQueryParamSchema.parse(req.query);
+    const { status } = reportQueryParamSchema.parse(req.query);
     const userRole = req.user!.role;
     const reports = await reportsService.getCommentReports(
       userRole,
       commentId,
-      String(status),
+      status,
     );
     res.status(200).json(reports);
   });
