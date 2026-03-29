@@ -44,5 +44,5 @@ export const reportsTable = pgTable("reports", {
   content: varchar("content", { length: 500 }).notNull(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
   resolution: resolutionEnum("resolution"),
-  resolvedAt: timestamp("resolved_at", { mode: "date" }),
+  resolvedAt: timestamp("resolved_at", { mode: "date" })
 });

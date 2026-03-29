@@ -4,7 +4,7 @@ import {
   commentsTable,
   reportsTable,
 } from "@/database";
-import { eq, and, desc, sql, isNull, isNotNull } from "drizzle-orm";
+import { eq, and, desc, sql, isNull } from "drizzle-orm";
 import { checkRecipeExists } from "@/recipes";
 import { AppError } from "@/errors";
 import { AddCommentDTO } from "@/comments";
