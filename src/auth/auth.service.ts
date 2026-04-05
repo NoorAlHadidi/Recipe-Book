@@ -46,7 +46,6 @@ class AuthService {
         password: usersTable.password,
         role: usersTable.role,
         isActive: usersTable.isActive,
-        passwordReset: usersTable.passwordReset,
       })
       .from(usersTable)
       .where(eq(usersTable.email, email))
@@ -61,7 +60,7 @@ class AuthService {
     if (!isPasswordValid) {
       throw new AppError("Invalid credentials.", 401);
     }
-    if (user[0].passwordReset) {
+    if (password === env!.get("SUPER_ADMIN_PASSWORD")) {
       throw new AppError("Password reset required upon first login for super admins.", 403);
     }
     const accessToken = jwt.sign(
@@ -182,17 +181,16 @@ class AuthService {
       .where(
         and(
           eq(usersTable.userId, userId),
-          eq(usersTable.role, "admin"),
-          eq(usersTable.passwordReset, true),
+          eq(usersTable.role, "super-admin"),
         ),
       );
     if (adminUser.length === 0) {
-      throw new AppError("Only super admin is allowed to reset passwords.", 403);
+      throw new AppError("Only super admin is allowed to reset password.", 403);
     }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await databaseClient.db
       .update(usersTable)
-      .set({ password: hashedPassword, passwordReset: false })
+      .set({ password: hashedPassword })
       .where(eq(usersTable.userId, userId))
       .execute();
   }

@@ -16,6 +16,10 @@ export const addAdminSchema = z.object({
     .max(128, "Password must be at most 128 characters long."),
 });
 
+export const changePrivilegeSchema = z.object({
+  role: z.enum(["user", "admin"], "Role must be either user or admin."),
+});
+
 export const grantAdminSchema = z.object({
   userId: z.coerce
     .number("User ID must be a number.")
@@ -24,3 +28,4 @@ export const grantAdminSchema = z.object({
 });
 
 export type AddAdminDTO = z.infer<typeof addAdminSchema>;
+export type ChangePrivilegeDTO = z.infer<typeof changePrivilegeSchema>;

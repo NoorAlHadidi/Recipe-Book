@@ -18,7 +18,7 @@ export async function checkRecipeExists(
   recipeId: number,
   db: any = databaseClient.db,
 ) {
-  const existingRecipe = await databaseClient.db
+  const existingRecipe = await db
     .select()
     .from(recipesTable)
     .where(eq(recipesTable.recipeId, recipeId))

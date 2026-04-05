@@ -1,8 +1,8 @@
-import { databaseClient, usersTable, refreshTokensTable } from "@/database";
-import { AddAdminDTO } from "@/admins";
+import { databaseClient, usersTable } from "@/database";
+import { AddAdminDTO, ChangePrivilegeDTO } from "@/admins";
 import { AppError } from "@/errors";
 import bcrypt from "bcrypt";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 class AdminService {
   async addAdminUser(addAdminDTO: AddAdminDTO) {
@@ -35,7 +35,7 @@ class AdminService {
     return newUser[0];
   }
 
-  async grantAdminPrivileges(userId: number) {
+  async changePrivileges(userId: number, changePrivilegeDTO: ChangePrivilegeDTO) {
     const exisitingUser = await databaseClient.db
       .select()
       .from(usersTable)
@@ -44,12 +44,10 @@ class AdminService {
     if (exisitingUser.length === 0) {
       throw new AppError("No user with that ID exists.", 404);
     }
-    if (exisitingUser[0].role === "admin") {
-      throw new AppError("User already has admin privileges.", 409);
-    }
+    const { role } = changePrivilegeDTO;
     await databaseClient.db
       .update(usersTable)
-      .set({ role: "admin" })
+      .set({ role })
       .where(eq(usersTable.userId, userId))
       .execute();
   }

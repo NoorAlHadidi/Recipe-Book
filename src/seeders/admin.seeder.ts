@@ -2,7 +2,7 @@ import { databaseClient, usersTable } from "@/database";
 import bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
 
-export async function seedAdmin() {
+export async function seedSuperAdmin() {
   const existingAdmin = await databaseClient.db
     .select()
     .from(usersTable)
@@ -21,17 +21,16 @@ export async function seedAdmin() {
     lastName: "Admin",
     email: "super.admin@system.com",
     password: hashedPassword,
-    role: "admin",
-    passwordReset: true,
+    role: "super-admin"
   });
 
   console.log("Succesfully seeded super admin user.");
 }
 
-export async function clearAdmin() {
+export async function clearSuperAdmin() {
   await databaseClient.db
     .delete(usersTable)
-    .where(eq(usersTable.role, "admin"))
+    .where(eq(usersTable.role, "super-admin"))
     .execute();
 
   console.log("Cleared admin users.");

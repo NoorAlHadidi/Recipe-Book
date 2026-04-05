@@ -1,7 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { env } from "@/utils";
 import { AppError } from "@/errors";
-import { ZodError } from "zod";
+import { z, ZodError } from "zod";
 
 export function globalErrorHandler(
   err: Error,
@@ -13,7 +13,7 @@ export function globalErrorHandler(
     return res.status(400).json({
       status: "error",
       message: "Invalid input data",
-      details: err.flatten(),
+      details: z.treeifyError(err),
     });
   }
 
