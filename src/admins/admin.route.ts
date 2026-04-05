@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { checkAdmin, authenticateToken } from "@/middlewares";
+import { authenticateToken, checkSuperAdmin } from "@/middlewares";
 import { adminController } from "@/admins";
 
 export const adminRouter = Router();
@@ -69,7 +69,7 @@ export const adminRouter = Router();
  *                 message:
  *                   type: string
  *       403:
- *         description: Authenticated user is not an admin
+ *         description: Authenticated user is not a super admin
  *         content:
  *           application/json:
  *             schema:
@@ -105,7 +105,7 @@ export const adminRouter = Router();
  *                 message:
  *                   type: string
  */
-adminRouter.post("/", authenticateToken, checkAdmin, adminController.addAdmin);
+adminRouter.post("/", authenticateToken, checkSuperAdmin, adminController.addAdmin);
 
 /**
  * @swagger
@@ -150,7 +150,7 @@ adminRouter.post("/", authenticateToken, checkAdmin, adminController.addAdmin);
  *                 message:
  *                   type: string
  *       403:
- *         description: Authenticated user is not an admin
+ *         description: Authenticated user is not a super admin
  *         content:
  *           application/json:
  *             schema:
@@ -199,10 +199,10 @@ adminRouter.post("/", authenticateToken, checkAdmin, adminController.addAdmin);
  *                   type: string
  */
 adminRouter.patch(
-  "/:userId/grant",
+  "/:userId",
   authenticateToken,
-  checkAdmin,
-  adminController.grantAdmin,
+  checkSuperAdmin,
+  adminController.changePrivilege,
 );
 
 export default adminRouter;

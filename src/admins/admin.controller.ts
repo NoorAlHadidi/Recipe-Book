@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 import { asyncErrorHandler } from "@/errors";
-import { adminService, addAdminSchema, grantAdminSchema } from "@/admins";
+import {
+  adminService,
+  addAdminSchema,
+  grantAdminSchema,
+  changePrivilegeSchema,
+} from "@/admins";
 
 class AdminController {
   addAdmin = asyncErrorHandler(async (req: Request, res: Response) => {
@@ -9,9 +14,10 @@ class AdminController {
     res.status(201).json(newAdmin);
   });
 
-  grantAdmin = asyncErrorHandler(async (req: Request, res: Response) => {
+  changePrivilege = asyncErrorHandler(async (req: Request, res: Response) => {
     const { userId } = grantAdminSchema.parse(req.params);
-    await adminService.grantAdminPrivileges(userId);
+    const changePrivilegeDTO = changePrivilegeSchema.parse(req.body);
+    await adminService.changePrivileges(userId, changePrivilegeDTO);
     res.status(204).send();
   });
 }
