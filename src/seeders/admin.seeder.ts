@@ -6,11 +6,11 @@ export async function seedSuperAdmin() {
   const existingAdmin = await databaseClient.db
     .select()
     .from(usersTable)
-    .where(eq(usersTable.role, "admin"))
+    .where(eq(usersTable.role, "super-admin"))
     .execute();
 
   if (existingAdmin.length > 0) {
-    console.log("Admin already exists.");
+    console.log("Super admin already exists.");
     return;
   }
 
@@ -33,5 +33,5 @@ export async function clearSuperAdmin() {
     .where(eq(usersTable.role, "super-admin"))
     .execute();
 
-  console.log("Cleared admin users.");
+  console.log("Cleared super admin user.");
 }
