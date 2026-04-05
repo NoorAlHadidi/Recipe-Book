@@ -109,9 +109,9 @@ adminRouter.post("/", authenticateToken, checkSuperAdmin, adminController.addAdm
 
 /**
  * @swagger
- * /admin/{userId}/grant:
+ * /admin/{userId}:
  *   patch:
- *     summary: Endpoint for granting admin privileges to a user
+ *     summary: Endpoint for changing a user's privileges
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -120,6 +120,16 @@ adminRouter.post("/", authenticateToken, checkSuperAdmin, adminController.addAdm
  *         required: true
  *         schema:
  *           type: number
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 enum: [user, admin]
  *     responses:
  *       204:
  *         description: Admin privileges granted successfully
