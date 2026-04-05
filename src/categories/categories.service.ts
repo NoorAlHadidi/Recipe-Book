@@ -5,9 +5,25 @@ import {
   CategoryQueryParamDTO,
   EditCategoryDTO,
 } from "@/categories";
-import { eq, ne, and, or, ilike, sql } from "drizzle-orm";
+import { eq, ne, and, ilike, sql, count } from "drizzle-orm";
 
 class CategoriesService {
+  async getCategory(categoryId: number) {
+    const existingCategory = await databaseClient.db
+      .select({
+        categoryId: categoriesTable.categoryId,
+        name: categoriesTable.name,
+        description: categoriesTable.description,
+      })
+      .from(categoriesTable)
+      .where(eq(categoriesTable.categoryId, categoryId))
+      .execute();
+    if (existingCategory.length === 0) {
+      throw new AppError("No category with this ID exists.", 404);
+    }
+    return existingCategory[0];
+  }
+
   async addCategory(addCategoryDTO: AddCategoryDTO) {
     const { name, description } = addCategoryDTO;
     const existingCategory = await databaseClient.db
@@ -34,43 +50,36 @@ class CategoriesService {
   }
 
   async editCategory(categoryId: number, editCategoryDTO: EditCategoryDTO) {
-    const existingCategory = await databaseClient.db
-      .select()
-      .from(categoriesTable)
-      .where(eq(categoriesTable.categoryId, categoryId))
-      .execute();
-    if (existingCategory.length === 0) {
-      throw new AppError("No category with this ID exists.", 404);
-    }
+    await this.getCategory(categoryId);
+
     const { name, description } = editCategoryDTO;
     const updateValues: any = {};
-    const conflictConditions = [];
-    if (name !== undefined) {
-      updateValues.name = name;
-      conflictConditions.push(eq(categoriesTable.name, name));
-    }
-    if (description !== undefined) {
-      updateValues.description = description;
-      conflictConditions.push(eq(categoriesTable.description, description));
-    }
-    if (conflictConditions.length > 0) {
+
+    if (name) {
       const conflictCategory = await databaseClient.db
         .select()
         .from(categoriesTable)
         .where(
           and(
             ne(categoriesTable.categoryId, categoryId),
-            or(...conflictConditions),
+            eq(categoriesTable.name, name),
           ),
         )
         .execute();
+
       if (conflictCategory.length > 0) {
         throw new AppError(
-          "Another category with this name or description already exists.",
+          "Another category with this name already exists.",
           409,
         );
       }
+      updateValues.name = name;
     }
+
+    if (description !== undefined) {
+      updateValues.description = description;
+    }
+
     const updatedCategory = await databaseClient.db
       .update(categoriesTable)
       .set(updateValues)
@@ -86,34 +95,12 @@ class CategoriesService {
   }
 
   async deleteCategory(categoryId: number) {
-    const existingCategory = await databaseClient.db
-      .select()
-      .from(categoriesTable)
-      .where(eq(categoriesTable.categoryId, categoryId))
-      .execute();
-    if (existingCategory.length === 0) {
-      throw new AppError("No category with this ID exists.", 404);
-    }
+    await this.getCategory(categoryId);
+
     await databaseClient.db
       .delete(categoriesTable)
       .where(eq(categoriesTable.categoryId, categoryId))
       .execute();
-  }
-
-  async getCategory(categoryId: number) {
-    const existingCategory = await databaseClient.db
-      .select({
-        categoryId: categoriesTable.categoryId,
-        name: categoriesTable.name,
-        description: categoriesTable.description,
-      })
-      .from(categoriesTable)
-      .where(eq(categoriesTable.categoryId, categoryId))
-      .execute();
-    if (existingCategory.length === 0) {
-      throw new AppError("No category with this ID exists.", 404);
-    }
-    return existingCategory[0];
   }
 
   async getCategories(categoryQueryParams: CategoryQueryParamDTO) {
@@ -122,12 +109,32 @@ class CategoriesService {
     if (name) {
       filterConditions.push(ilike(categoriesTable.name, `%${name}%`));
     }
+
+    const countQuery = databaseClient.db
+      .select({ total: count() })
+      .from(categoriesTable);
+
+    if (filterConditions.length > 0) {
+      countQuery.where(and(...filterConditions));
+    }
+
+    const totalResult = await countQuery.execute();
+    const { total } = totalResult[0];
+
+    if (total === 0) {
+      return {
+        page: page ? page : 1,
+        limit: limit ? limit : 0,
+        total: 0,
+        data: [],
+      };
+    }
+
     const categoriesQuery = databaseClient.db
       .select({
         categoryId: categoriesTable.categoryId,
         name: categoriesTable.name,
         description: categoriesTable.description,
-        total: sql`count(*) over()`.mapWith(Number),
       })
       .from(categoriesTable)
       .orderBy(categoriesTable.createdAt);
@@ -143,13 +150,11 @@ class CategoriesService {
 
     const categories = await categoriesQuery.execute();
 
-    const total = categories.length > 0 ? categories[0].total : 0;
-
     return {
       page: page ? page : 1,
       limit: limit ? limit : total,
       total,
-      data: categories.map(({ total, ...category }) => category),
+      data: categories,
     };
   }
 }
