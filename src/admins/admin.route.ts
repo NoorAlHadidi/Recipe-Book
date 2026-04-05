@@ -1,6 +1,10 @@
 import { Router } from "express";
-import { authenticateToken, checkSuperAdmin } from "@/middlewares";
-import { adminController } from "@/admins";
+import {
+  authenticateToken,
+  checkSuperAdmin,
+  validateData,
+} from "@/middlewares";
+import { addAdminSchema, adminController } from "@/admins";
 
 export const adminRouter = Router();
 
@@ -105,7 +109,13 @@ export const adminRouter = Router();
  *                 message:
  *                   type: string
  */
-adminRouter.post("/", authenticateToken, checkSuperAdmin, adminController.addAdmin);
+adminRouter.post(
+  "/",
+  authenticateToken,
+  checkSuperAdmin,
+  validateData(addAdminSchema),
+  adminController.addAdmin,
+);
 
 /**
  * @swagger

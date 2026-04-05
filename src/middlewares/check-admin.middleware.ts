@@ -2,7 +2,7 @@ import { AppError } from "@/errors";
 
 export const checkAdmin = (req: any, res: any, next: any) => {
   const role = req.user.role;
-  if (role !== "admin") {
+  if (role === "user") {
     throw new AppError(
       "Admin privileges required to access this endpoint.",
       403,

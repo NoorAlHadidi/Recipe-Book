@@ -2,15 +2,13 @@ import { Request, Response } from "express";
 import { asyncErrorHandler } from "@/errors";
 import {
   adminService,
-  addAdminSchema,
   grantAdminSchema,
   changePrivilegeSchema,
 } from "@/admins";
 
 class AdminController {
   addAdmin = asyncErrorHandler(async (req: Request, res: Response) => {
-    const addAdminDto = addAdminSchema.parse(req.body);
-    const newAdmin = await adminService.addAdminUser(addAdminDto);
+    const newAdmin = await adminService.addAdminUser(req.body);
     res.status(201).json(newAdmin);
   });
 
