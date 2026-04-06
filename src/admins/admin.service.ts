@@ -1,6 +1,6 @@
 import { databaseClient, usersTable } from "@/database";
-import { AddAdminDTO, ChangePrivilegeDTO } from "@/admins";
 import { AppError } from "@/errors";
+import { AddAdminDTO, ChangePrivilegeDTO } from "./admin.d";
 import bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
 
@@ -35,7 +35,10 @@ class AdminService {
     return newUser[0];
   }
 
-  async changePrivileges(userId: number, changePrivilegeDTO: ChangePrivilegeDTO) {
+  async changePrivileges(
+    userId: number,
+    changePrivilegeDTO: ChangePrivilegeDTO,
+  ) {
     const exisitingUser = await databaseClient.db
       .select()
       .from(usersTable)

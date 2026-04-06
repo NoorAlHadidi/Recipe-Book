@@ -1,4 +1,5 @@
 import z from "zod";
+// import { ParamsDictionary } from "express-serve-static-core";
 
 export const addAdminSchema = z.object({
   firstName: z
@@ -20,12 +21,10 @@ export const changePrivilegeSchema = z.object({
   role: z.enum(["user", "admin"], "Role must be either user or admin."),
 });
 
-export const grantAdminSchema = z.object({
+export const userIdParamSchema = z.object({
   userId: z.coerce
-    .number("User ID must be a number.")
+    .number({ error: "User ID must be a number." })
     .int("User ID must be an integer.")
     .positive("User ID must be a positive integer."),
+  // userId: z.string().regex(/^\d+$/, "User ID must be a positive integer."),
 });
-
-export type AddAdminDTO = z.infer<typeof addAdminSchema>;
-export type ChangePrivilegeDTO = z.infer<typeof changePrivilegeSchema>;

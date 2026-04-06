@@ -4,7 +4,8 @@ import {
   checkSuperAdmin,
   validateData,
 } from "@/middlewares";
-import { addAdminSchema, adminController } from "@/admins";
+import { addAdminSchema, changePrivilegeSchema, userIdParamSchema } from "./admin.schema";
+import { adminController } from "./admin.controller"
 
 export const adminRouter = Router();
 
@@ -222,6 +223,8 @@ adminRouter.patch(
   "/:userId",
   authenticateToken,
   checkSuperAdmin,
+  validateData(userIdParamSchema, "params"),
+  validateData(changePrivilegeSchema),
   adminController.changePrivilege,
 );
 
