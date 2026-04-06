@@ -1,4 +1,4 @@
-import { NextFunction, Request, RequestHandler, Response } from "express";
+import type { NextFunction, Request, RequestHandler, Response } from "express";
 import { env } from "@/utils";
 import { AppError } from "@/errors";
 import { z, ZodError } from "zod";
@@ -38,6 +38,11 @@ export function globalErrorHandler(
     stack: env.get("NODE_ENV") === "development" ? err.stack : undefined,
   });
 }
+
+// error handling works by calling next(error), which passes the error to global error handler
+// for synchronous code, if error thrown, express catches it automatically and forwards it to global error handler
+// old express: for async code, rejected promises are not automatically caught, this is why asyncErrorHandler is needed (wraps async function so that rejection is caught and forwarded to next() - which triggers global error handler)
+// new express: async errors are automatically caught and forwarded to next()
 
 export const asyncErrorHandler =
   (

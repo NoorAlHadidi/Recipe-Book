@@ -36,9 +36,10 @@ class AdminService {
   }
 
   async changePrivileges(
-    userId: number,
+    userIdParam: string,
     changePrivilegeDTO: ChangePrivilegeDTO,
   ) {
+    const userId: number = Number(userIdParam);
     const exisitingUser = await databaseClient.db
       .select()
       .from(usersTable)

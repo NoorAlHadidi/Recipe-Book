@@ -22,9 +22,9 @@ export const changePrivilegeSchema = z.object({
 });
 
 export const userIdParamSchema = z.object({
-  userId: z.coerce
-    .number({ error: "User ID must be a number." })
-    .int("User ID must be an integer.")
-    .positive("User ID must be a positive integer."),
-  // userId: z.string().regex(/^\d+$/, "User ID must be a positive integer."),
+  // userId: z.coerce
+  //  .number({ error: "User ID must be a number." })
+  //  .int("User ID must be an integer.")
+  //  .positive("User ID must be a positive integer."),
+  userId: z.string().regex(/^\d+$/, "User ID must be a positive integer."),
 });
